@@ -3,13 +3,18 @@ use gtk::{Label, Box, ScrolledWindow, ListBox};
 use gtk::glib::clone;
 use gtk::glib;
 
-use crate::SharedState;
+use crate::{models, SharedState};
 
 pub fn build_box(shared_state: SharedState) -> Box {
-
-
     let gtk_box = Box::builder()
         .orientation(gtk::Orientation::Vertical)
+        .build();
+
+    let team_name_entry = gtk::Entry::builder()
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
         .build();
 
     let add_team_button = gtk::Button::builder()
@@ -20,17 +25,8 @@ pub fn build_box(shared_state: SharedState) -> Box {
         .margin_end(12)
         .build();
 
-    add_team_button.connect_clicked(clone!(
-        #[strong]
-        shared_state,
-        move |_| {
-            let mut state = shared_state.lock().unwrap();
-            state.value += 1;
-            println!("Value updated to: {}", state.value);
-        }
-    ));
-
     let (list_box, teams_list) = build_teams_list();
+
     let team_info_container = Box::builder()
         .margin_top(12)
         .margin_bottom(12)
@@ -39,6 +35,22 @@ pub fn build_box(shared_state: SharedState) -> Box {
         .build();
     let team_info = build_team_info("None");
     team_info_container.append(&team_info);
+
+    add_team_button.connect_clicked(clone!(
+        #[strong]
+        shared_state,
+        #[weak]
+        team_name_entry,
+        #[weak]
+        list_box,
+        move |_| {
+            let new_team_name = team_name_entry.text();
+            let mut state = shared_state.lock().unwrap();
+            state.division.teams.push(models::Team::new(&new_team_name, Vec::new()));
+            list_box.append(&Label::new(Some(&new_team_name)));
+            team_name_entry.set_text("");
+        }
+    ));
     
     list_box.connect_row_selected(clone!(
         #[weak]
@@ -56,6 +68,7 @@ pub fn build_box(shared_state: SharedState) -> Box {
     ));
 
     gtk_box.append(&teams_list);
+    gtk_box.append(&team_name_entry);
     gtk_box.append(&add_team_button);
     gtk_box.append(&team_info_container);
 
@@ -64,15 +77,15 @@ pub fn build_box(shared_state: SharedState) -> Box {
 
 fn build_teams_list() -> (ListBox, ScrolledWindow) {
     let list_box = ListBox::new();
-    for number in 0..=100 {
-        let label = Label::new(Some(&number.to_string()));
-        list_box.append(&label);
-    }
 
     let scrolled_window = ScrolledWindow::builder()
         .hscrollbar_policy(gtk::PolicyType::Never)
         .min_content_width(360)
         .min_content_height(360)
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
         .child(&list_box)
         .build();
 

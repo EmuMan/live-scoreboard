@@ -1,8 +1,10 @@
+#[derive(Clone)]
 pub struct Bracket {
     pub division: Division,
-    
+
 }
 
+#[derive(Clone)]
 pub struct Division {
     pub name: String,
     pub teams: Vec<Team>,
@@ -17,6 +19,7 @@ impl Division {
     }
 }
 
+#[derive(Clone)]
 pub struct Player {
     pub name: String,
     pub role: String,
@@ -33,6 +36,7 @@ impl Player {
     }
 }
 
+#[derive(Clone)]
 pub struct Team {
     pub name: String,
     pub players: Vec<Player>,

@@ -9,27 +9,27 @@
 <body>
     <div class="bracket">
         <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 0 %}{{ teams[0] }}{% endif %}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 1 %}{{ teams[1] }}{% endif %}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 2 %}{{ teams[2] }}{% endif %}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 3 %}{{ teams[3] }}{% endif %}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 4 %}{{ teams[4] }}{% endif %}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 5 %}{{ teams[5] }}{% endif %}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 6 %}{{ teams[6] }}{% endif %}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">{% if teams|length > 7 %}{{ teams[7] }}{% endif %}</span></div></div>
         </div>
         <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">QF 1</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">QF 2</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">QF 3</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">QF 4</span></div></div>
         </div>
         <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">SF 1</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">SF 2</span></div></div>
         </div>
         <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ value }}</span></div></div>
+            <div class="bteamcontainer"><div class="bteam"><span class="team">Winner</span></div></div>
         </div>
     </div>
 

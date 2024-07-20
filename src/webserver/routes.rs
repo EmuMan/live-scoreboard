@@ -22,8 +22,15 @@ pub async fn render_bracket(
     // Lock the context to safely access it
     let mut context = state.context.lock().unwrap();
     let shared_state = state.shared_state.lock().unwrap();
+    
+    let teams_display_list: Vec<String> = shared_state
+        .division
+        .teams
+        .iter()
+        .map(|team| team.name.clone())
+        .collect();
 
-    context.insert("value", &shared_state.value.to_string());
+    context.insert("teams", &teams_display_list);
 
     // Render the template
     let rendered = state

@@ -7,7 +7,7 @@ pub mod models;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub value: i32,
+    pub division: models::Division,
 }
 
 type SharedState = Arc<Mutex<AppState>>;

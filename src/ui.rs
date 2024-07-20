@@ -6,10 +6,13 @@ use std::sync::{Arc, Mutex};
 use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
 
+use crate::models::Division;
 use crate::AppState;
 
 pub fn build_ui(app: &Application) {
-    let shared_state = Arc::new(Mutex::new(AppState { value: 0 }));
+    let shared_state = Arc::new(Mutex::new(AppState {
+        division: Division::new("Test Division", Vec::new())
+    }));
 
     let notebook = gtk::Notebook::builder()
         .scrollable(true)
