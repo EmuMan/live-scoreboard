@@ -6,9 +6,9 @@ use gtk::{glib, Button, Label, Box};
 use glib::clone;
 use tokio::sync::oneshot;
 
-use crate::{webserver, runtime};
+use crate::{webserver, runtime, SharedState};
 
-pub fn build_box() -> Box {
+pub fn build_box(shared_state: SharedState) -> Box {
     let server: Rc<Cell<Option<tokio::task::JoinHandle<()>>>> = Rc::new(Cell::new(None));
     let server_stop_tx: Rc<RefCell<Option<oneshot::Sender<()>>>> = Rc::new(RefCell::new(None));
 
@@ -49,7 +49,12 @@ pub fn build_box() -> Box {
             println!("Starting webserver...");
             let (tx, rx) = oneshot::channel::<()>();
             let handle = runtime().spawn(
-                webserver::create_and_run_webserver("templates/**/*", "0.0.0.0:3000", rx)
+                webserver::create_and_run_webserver(
+                    "templates/**/*",
+                    "0.0.0.0:3000",
+                    rx,
+                    shared_state.clone()
+                )
             );
             println!("Webserver started!");
             server.set(Some(handle));

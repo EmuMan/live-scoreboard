@@ -3,15 +3,40 @@ use gtk::{Label, Box, ScrolledWindow, ListBox};
 use gtk::glib::clone;
 use gtk::glib;
 
-pub fn build_box() -> Box {
+use crate::SharedState;
+
+pub fn build_box(shared_state: SharedState) -> Box {
+
+
     let gtk_box = Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
 
+    let add_team_button = gtk::Button::builder()
+        .label("Add Team")
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
+
+    add_team_button.connect_clicked(clone!(
+        #[strong]
+        shared_state,
+        move |_| {
+            let mut state = shared_state.lock().unwrap();
+            state.value += 1;
+            println!("Value updated to: {}", state.value);
+        }
+    ));
+
     let (list_box, teams_list) = build_teams_list();
-
-    let team_info_container = Box::builder().build();
-
+    let team_info_container = Box::builder()
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
     let team_info = build_team_info("None");
     team_info_container.append(&team_info);
     
@@ -31,6 +56,7 @@ pub fn build_box() -> Box {
     ));
 
     gtk_box.append(&teams_list);
+    gtk_box.append(&add_team_button);
     gtk_box.append(&team_info_container);
 
     gtk_box

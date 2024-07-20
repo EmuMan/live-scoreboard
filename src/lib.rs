@@ -1,8 +1,16 @@
-use std::sync::OnceLock;
+use std::sync::{Arc, Mutex, OnceLock};
 use tokio::runtime::Runtime;
 
 pub mod webserver;
 pub mod ui;
+pub mod models;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub value: i32,
+}
+
+type SharedState = Arc<Mutex<AppState>>;
 
 pub fn runtime() -> &'static Runtime {
     static RUNTIME: OnceLock<Runtime> = OnceLock::new();
