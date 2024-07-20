@@ -74,7 +74,9 @@ pub fn build_box(shared_state: SharedState) -> Box {
             if let Some(handle) = server.take() {
                 if let Some(tx) = server_stop_tx.borrow_mut().take() {
                     println!("Stopping webserver...");
-                    tx.send(()).unwrap();
+                    tx.send(()).unwrap_or_else(|err| {
+                        println!("Webserver exited with error: {:?}", err);
+                    });
                     handle.abort();
                     println!("Webserver stopped!");
                 } else {

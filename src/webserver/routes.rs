@@ -1,9 +1,5 @@
 use axum::{
-    body::Body,
-    extract::{Extension, Path},
-    response::{Html, Response},
-    Router,
-    routing::get,
+    body::Body, extract::{Extension, Path}, response::{Html, Response}, routing::get, Router
 };
 use std::{fs, sync::Arc};
 use super::{error::AppError, WebserverState};
@@ -31,13 +27,19 @@ pub async fn render_bracket(
         .collect();
 
     context.insert("teams", &teams_display_list);
+    context.insert("numTeams", &teams_display_list.len());
 
     // Render the template
     let rendered = state
         .tera
-        .render("bracket.html", &context)?;
-
-    Ok(Html(rendered))
+        .render("bracket.html", &context);
+    match rendered {
+        Ok(rendered) => Ok(Html(rendered)),
+        Err(e) => {
+            eprintln!("Failed to render template: {}", e);
+            Err(AppError::TemplateError)
+        }
+    }
 }
 
 pub async fn serve_asset(Path(path): Path<String>) -> Result<Response, AppError> {
