@@ -41,10 +41,8 @@ pub fn build_box(shared_state: SharedState) -> Box {
         .build();
 
     start_ws_button.connect_clicked(clone!(
-        #[strong]
-        server,
-        #[strong]
-        server_stop_tx,
+        #[strong] server,
+        #[strong] server_stop_tx,
         move |button| {
             println!("Starting webserver...");
             let (tx, rx) = oneshot::channel::<()>();
@@ -64,12 +62,9 @@ pub fn build_box(shared_state: SharedState) -> Box {
     ));
 
     stop_ws_button.connect_clicked(clone!(
-        #[strong]
-        server_stop_tx,
-        #[strong]
-        server,
-        #[weak]
-        start_ws_button,
+        #[strong] server_stop_tx,
+        #[strong] server,
+        #[weak] start_ws_button,
         move |_| {
             if let Some(handle) = server.take() {
                 if let Some(tx) = server_stop_tx.borrow_mut().take() {
