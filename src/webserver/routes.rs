@@ -9,6 +9,7 @@ pub fn create_router(state: Arc<WebserverState>) -> Router {
     Router::new()
         .route("/bracket", get(render_bracket))
         .route("/assets/*path", get(serve_asset))
+        .route("/team/:team", get(render_team))
         .layer(Extension(state))
 }
 
@@ -33,6 +34,45 @@ pub async fn render_bracket(
     let rendered = state
         .tera
         .render("bracket.html", &context);
+    match rendered {
+        Ok(rendered) => Ok(Html(rendered)),
+        Err(e) => {
+            eprintln!("Failed to render template: {}", e);
+            Err(AppError::TemplateError)
+        }
+    }
+}
+
+pub async fn render_team(
+    Path(team): Path<String>,
+    Extension(state): Extension<Arc<WebserverState>>,
+) -> Result<Html<String>, AppError> {
+    let mut context = state.context.lock().unwrap();
+    let shared_state = state.shared_state.lock().unwrap();
+
+    let team = shared_state
+        .division
+        .teams
+        .iter()
+        .find(|t| t.name == team)
+        .ok_or(AppError::NotFound)?;
+
+    let players_display_list: Vec<Vec<String>> = team
+        .players
+        .iter()
+        .map(|player| vec![
+            player.name.clone(),
+            player.role.clone(),
+            player.hero.clone()
+        ])
+        .collect();
+
+    context.insert("team", &team.name);
+    context.insert("players", &players_display_list);
+
+    let rendered = state
+        .tera
+        .render("team.html", &context);
     match rendered {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {

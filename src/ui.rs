@@ -1,10 +1,13 @@
 pub mod settings;
 pub mod teams;
 
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
+use gtk::glib::clone;
+use gtk::glib;
 
 use crate::models::Division;
 use crate::AppState;
@@ -18,14 +21,6 @@ pub fn build_ui(app: &Application) {
         .scrollable(true)
         .build();
 
-    let teams_box = teams::build_box(shared_state.clone());
-    let teams_label = gtk::Label::new(Some("Teams"));
-    notebook.append_page(&teams_box, Some(&teams_label));
-
-    let settings_box = settings::build_box(shared_state.clone());
-    let settings_label = gtk::Label::new(Some("Settings"));
-    notebook.append_page(&settings_box, Some(&settings_label));
-
     let window = ApplicationWindow::builder()
         .application(app)
         .title("Live Scoreboard")
@@ -33,6 +28,14 @@ pub fn build_ui(app: &Application) {
         .default_height(1000)
         .child(&notebook)
         .build();
+
+    let teams_box = teams::build_box(&window, shared_state.clone());
+    let teams_label = gtk::Label::new(Some("Teams"));
+    notebook.append_page(&teams_box, Some(&teams_label));
+
+    let settings_box = settings::build_box(shared_state.clone());
+    let settings_label = gtk::Label::new(Some("Settings"));
+    notebook.append_page(&settings_box, Some(&settings_label));
 
     window.present();
 }
@@ -81,6 +84,63 @@ fn make_list() -> (gtk::ListBox, gtk::ScrolledWindow) {
         .build();
 
     (list_box, scrolled_window)
+}
+
+fn make_new_window(
+    primary_window: &gtk::ApplicationWindow,
+    title: &str,
+    contents: &gtk::Box,
+) -> gtk::Window {
+    gtk::Window::builder()
+        .transient_for(primary_window)
+        .modal(true)
+        .title(title)
+        .default_width(200)
+        .default_height(200)
+        .child(contents)
+        .build()
+}
+
+fn make_entry_window(
+    primary_window: &gtk::ApplicationWindow,
+    title: &str,
+    field_names: Vec<String>,
+    on_submit: Box<dyn Fn(HashMap<String, String>)>,
+) {
+    let entry_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .build();
+
+    let mut entries = HashMap::new();
+
+    for field_name in &field_names {
+        let entry = make_entry();
+        entry.set_placeholder_text(Some(&field_name));
+        entry_box.append(&entry);
+        entries.insert(field_name.clone(), entry);
+    }
+
+    let submit_button = make_button("Submit");
+
+    entry_box.append(&submit_button);
+
+    let window = make_new_window(primary_window, title, &entry_box);
+    
+    submit_button.connect_clicked(clone!(
+        #[weak] window,
+        #[strong] entries,
+        move |_| {
+            let results = entries.iter()
+                .map(|(field_name, field_info)| {
+                    (field_name.to_string(), field_info.text().to_string())
+                })
+                .collect();
+            on_submit(results);
+            window.close();
+        }
+    ));
+
+    window.present();
 }
 
 fn get_string_from_label_row(row: &gtk::ListBoxRow) -> Option<String> {
