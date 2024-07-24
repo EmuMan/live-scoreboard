@@ -1,10 +1,12 @@
-#[derive(Clone)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Bracket {
     pub division: Division,
 
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Division {
     pub name: String,
     pub teams: Vec<Team>,
@@ -19,7 +21,7 @@ impl Division {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Player {
     pub name: String,
     pub role: String,
@@ -36,7 +38,7 @@ impl Player {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Team {
     pub name: String,
     pub players: Vec<Player>,

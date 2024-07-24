@@ -1,11 +1,13 @@
 use std::sync::{Arc, Mutex, OnceLock};
 use tokio::runtime::Runtime;
+use serde::{Deserialize, Serialize};
 
 pub mod webserver;
 pub mod ui;
 pub mod models;
+pub mod fs;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct AppState {
     pub division: models::Division,
 }

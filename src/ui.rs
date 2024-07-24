@@ -10,34 +10,41 @@ use gtk::glib::clone;
 use gtk::glib;
 
 use crate::models::Division;
-use crate::AppState;
+use crate::{AppState, SharedState};
 
 pub fn build_ui(app: &Application) {
     let shared_state = Arc::new(Mutex::new(AppState {
         division: Division::new("Test Division", Vec::new())
     }));
 
-    let notebook = gtk::Notebook::builder()
-        .scrollable(true)
-        .build();
-
     let window = ApplicationWindow::builder()
         .application(app)
         .title("Live Scoreboard")
         .default_width(500)
         .default_height(1000)
-        .child(&notebook)
         .build();
 
-    let teams_box = teams::build_box(&window, shared_state.clone());
+    let notebook = build_notebook(&window, shared_state.clone());
+
+    window.set_child(Some(&notebook));
+
+    window.present();
+}
+
+pub fn build_notebook(window: &ApplicationWindow, shared_state: SharedState) -> gtk::Notebook {
+    let notebook = gtk::Notebook::builder()
+        .scrollable(true)
+        .build();
+
+    let teams_box = teams::build_box(window, shared_state.clone());
     let teams_label = gtk::Label::new(Some("Teams"));
     notebook.append_page(&teams_box, Some(&teams_label));
 
-    let settings_box = settings::build_box(shared_state.clone());
+    let settings_box = settings::build_box(window, shared_state.clone());
     let settings_label = gtk::Label::new(Some("Settings"));
     notebook.append_page(&settings_box, Some(&settings_label));
 
-    window.present();
+    notebook
 }
 
 fn make_button(label: &str) -> gtk::Button {

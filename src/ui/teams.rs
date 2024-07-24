@@ -134,6 +134,8 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     gtk_box.append(&add_player_button);
     gtk_box.append(&remove_player_button);
 
+    init_teams(&teams_list_box, &shared_state);
+
     gtk_box
 }
 
@@ -156,5 +158,12 @@ fn set_team_info(list_box: &gtk::ListBox, team_info: Option<&models::Team>) {
     
             list_box.append(&player_box);
         }
+    }
+}
+
+fn init_teams(list_box: &gtk::ListBox, shared_state: &SharedState) {
+    let state = shared_state.lock().unwrap();
+    for team in &state.division.teams {
+        list_box.append(&gtk::Label::new(Some(&team.name)));
     }
 }

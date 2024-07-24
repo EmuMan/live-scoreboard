@@ -2,47 +2,35 @@ use std::rc::Rc;
 use std::cell::{Cell, RefCell};
 
 use gtk::prelude::*;
-use gtk::{glib, Button, Label, Box};
+use gtk::glib;
 use glib::clone;
 use tokio::sync::oneshot;
 
 use crate::{webserver, runtime, SharedState};
 
-pub fn build_box(shared_state: SharedState) -> Box {
+pub fn build_box(
+    primary_window: &gtk::ApplicationWindow,
+    shared_state: SharedState,
+) -> gtk::Box {
     let server: Rc<Cell<Option<tokio::task::JoinHandle<()>>>> = Rc::new(Cell::new(None));
     let server_stop_tx: Rc<RefCell<Option<oneshot::Sender<()>>>> = Rc::new(RefCell::new(None));
 
-    let gtk_box = Box::builder()
+    let gtk_box = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
 
-    let label = Label::builder()
-        .label("Webserver")
-        .margin_top(12)
-        .margin_bottom(12)
-        .margin_start(12)
-        .margin_end(12)
-        .build();
-
-    let start_ws_button = Button::builder()
-        .label("Start Webserver")
-        .margin_top(12)
-        .margin_bottom(12)
-        .margin_start(12)
-        .margin_end(12)
-        .build();
-
-    let stop_ws_button = Button::builder()
-        .label("Stop Webserver")
-        .margin_top(12)
-        .margin_bottom(12)
-        .margin_start(12)
-        .margin_end(12)
-        .build();
+    let webserver_label = super::make_label("Webserver");
+    let start_ws_button = super::make_button("Start Webserver");
+    let stop_ws_button = super::make_button("Stop Webserver");
+    
+    let config_label = super::make_label("Config");
+    let open_config_button = super::make_button("Open Config");
+    let save_config_button = super::make_button("Save Config");
 
     start_ws_button.connect_clicked(clone!(
         #[strong] server,
         #[strong] server_stop_tx,
+        #[strong] shared_state,
         move |button| {
             println!("Starting webserver...");
             let (tx, rx) = oneshot::channel::<()>();
@@ -84,9 +72,31 @@ pub fn build_box(shared_state: SharedState) -> Box {
         }
     ));
 
-    gtk_box.append(&label);
+    open_config_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] primary_window,
+        move |_| {
+            println!("Opening config file...");
+            crate::fs::open_config_file(&primary_window, shared_state.clone());
+        }
+    ));
+
+    save_config_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] primary_window,
+        move |_| {
+            println!("Saving config file...");
+            crate::fs::save_config_file(&primary_window, shared_state.clone());
+        }
+    ));
+
+    gtk_box.append(&webserver_label);
     gtk_box.append(&start_ws_button);
     gtk_box.append(&stop_ws_button);
+
+    gtk_box.append(&config_label);
+    gtk_box.append(&open_config_button);
+    gtk_box.append(&save_config_button);
 
     gtk_box
 }
