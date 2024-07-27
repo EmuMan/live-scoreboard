@@ -1,22 +1,27 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Bracket {
-    pub division: Division,
-
-}
-
-#[derive(Clone, Serialize, Deserialize)]
 pub struct Division {
     pub name: String,
     pub teams: Vec<Team>,
+    pub bracket: Vec<Vec<Option<usize>>>,
 }
 
 impl Division {
-    pub fn new(name: &str, teams: Vec<Team>) -> Self {
+    pub fn new(name: &str, teams: Vec<Team>, bracket: Option<Vec<Vec<Option<usize>>>>) -> Self {
+        let bracket = match bracket {
+            Some(bracket) => bracket,
+            None => vec![
+                vec![None, None, None, None, None, None, None, None],
+                vec![None, None, None, None],
+                vec![None, None],
+                vec![None],
+            ],
+        };
         Self {
             name: name.to_string(),
             teams,
+            bracket,
         }
     }
 }

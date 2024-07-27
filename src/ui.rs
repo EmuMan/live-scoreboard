@@ -1,5 +1,6 @@
 pub mod settings;
 pub mod teams;
+pub mod bracket;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -14,7 +15,7 @@ use crate::{AppState, SharedState};
 
 pub fn build_ui(app: &Application) {
     let shared_state = Arc::new(Mutex::new(AppState {
-        division: Division::new("Test Division", Vec::new())
+        division: Division::new("Test Division", Vec::new(), None),
     }));
 
     let window = ApplicationWindow::builder()
@@ -25,6 +26,13 @@ pub fn build_ui(app: &Application) {
         .build();
 
     let notebook = build_notebook(&window, shared_state.clone());
+
+    // quick hack to tell pages when they've been switched to
+    // don't wanna set up custom signals for this...
+    notebook.connect_switch_page(move |_notebook, page, _page_num| {
+        page.set_visible(false);
+        page.set_visible(true);
+    });
 
     window.set_child(Some(&notebook));
 
@@ -39,6 +47,10 @@ pub fn build_notebook(window: &ApplicationWindow, shared_state: SharedState) -> 
     let teams_box = teams::build_box(window, shared_state.clone());
     let teams_label = gtk::Label::new(Some("Teams"));
     notebook.append_page(&teams_box, Some(&teams_label));
+
+    let bracket_box = bracket::build_box(window, shared_state.clone());
+    let bracket_label = gtk::Label::new(Some("Bracket"));
+    notebook.append_page(&bracket_box, Some(&bracket_label));
 
     let settings_box = settings::build_box(window, shared_state.clone());
     let settings_label = gtk::Label::new(Some("Settings"));
