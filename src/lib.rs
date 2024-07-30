@@ -7,9 +7,10 @@ pub mod ui;
 pub mod models;
 pub mod fs;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppState {
     pub division: models::Division,
+    pub assets: Vec<models::Asset>,
 }
 
 type SharedState = Arc<Mutex<AppState>>;

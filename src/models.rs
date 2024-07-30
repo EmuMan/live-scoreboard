@@ -1,6 +1,21 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Asset {
+    pub name: String,
+    pub path: String,
+}
+
+impl Asset {
+    pub fn new(name: &str, path: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            path: path.to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Division {
     pub name: String,
     pub teams: Vec<Team>,
@@ -26,7 +41,7 @@ impl Division {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
     pub name: String,
     pub role: String,
@@ -43,7 +58,7 @@ impl Player {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Team {
     pub name: String,
     pub players: Vec<Player>,

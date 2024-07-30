@@ -1,6 +1,7 @@
 pub mod settings;
 pub mod teams;
 pub mod bracket;
+pub mod assets;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -16,6 +17,7 @@ use crate::{AppState, SharedState};
 pub fn build_ui(app: &Application) {
     let shared_state = Arc::new(Mutex::new(AppState {
         division: Division::new("Test Division", Vec::new(), None),
+        assets: Vec::new(),
     }));
 
     let window = ApplicationWindow::builder()
@@ -51,6 +53,10 @@ pub fn build_notebook(window: &ApplicationWindow, shared_state: SharedState) -> 
     let bracket_box = bracket::build_box(window, shared_state.clone());
     let bracket_label = gtk::Label::new(Some("Bracket"));
     notebook.append_page(&bracket_box, Some(&bracket_label));
+
+    let assets_box = assets::build_box(window, shared_state.clone());
+    let assets_label = gtk::Label::new(Some("Assets"));
+    notebook.append_page(&assets_box, Some(&assets_label));
 
     let settings_box = settings::build_box(window, shared_state.clone());
     let settings_label = gtk::Label::new(Some("Settings"));
