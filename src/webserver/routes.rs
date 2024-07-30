@@ -35,10 +35,29 @@ pub async fn render_bracket(
         first_round += 1;
     }
 
+    let mut visibilities: Vec<Vec<usize>> = Vec::new();
+    let mut old_round_visibility: Vec<usize> = Vec::new();
+    
+    for round in &state.division.bracket {
+        let mut round_visibility = Vec::new();
+        for (i, team) in round.iter().enumerate() {
+            let mut visibility = if team.is_some() { 2 } else { 0 };
+            if visibility == 0 &&
+                (*old_round_visibility.get(i * 2).unwrap_or(&0) != 0 ||
+                *old_round_visibility.get(i * 2 + 1).unwrap_or(&0) != 0) {
+                visibility = 1;
+            }
+            round_visibility.push(visibility);
+        }
+        visibilities.push(round_visibility.clone());
+        old_round_visibility = round_visibility;
+    }
+
     context.insert("teams", &teams_display_list);
-    context.insert("numTeams", &teams_display_list.len());
+    context.insert("num_teams", &teams_display_list.len());
     context.insert("bracket", &state.division.bracket);
-    context.insert("firstRound", &first_round);
+    context.insert("first_round", &first_round);
+    context.insert("visibilities", &visibilities);
 
     // Render the template
     let rendered = webserver_state

@@ -11,143 +11,137 @@
     <svg id="blines" class="blines"></svg>
 
     <div id="bracket" class="bracket">
-        {% if numTeams == 8 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[1] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[2] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[3] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[4] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[5] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[6] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[7] }}</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 1</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 2</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 3</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 4</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 1</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 2</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Finals</span></div></div>
-        </div>
-        {% elif numTeams == 7 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[1] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[2] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[3] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[4] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[5] }}</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[6] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 2</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 3</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 4</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 1</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 2</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Finals</span></div></div>
-        </div>
-        {% elif numTeams == 6 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[1] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[2] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[3] }}</span></div></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[4] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 2</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 3</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[5] }}</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 1</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 2</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Finals</span></div></div>
-        </div>
-        {% elif numTeams == 5 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[1] }}</span></div></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[2] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Quarterfinals 2</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[3] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[4] }}</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 1</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 2</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Finals</span></div></div>
-        </div>
-        {% elif numTeams == 4 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[1] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[2] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[3] }}</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 1</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 2</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Finals</span></div></div>
-        </div>
-        {% elif numTeams == 3 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[1] }}</span></div></div>
-            <div class="bteamcontainer"></div>
-            <div class="bteamcontainer"></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 1</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[2] }}</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Finals</span></div></div>
-        </div>
-        {% elif numTeams == 2 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div></div>
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[1] }}</span></div></div>
-        </div>
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">Finals</span></div></div>
-        </div>
-        {% elif numTeams == 1 %}
-        <div class="bcolumn">
-            <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[0] }}</span></div>
-        </div>
+        {% if first_round <= 0 %}
+            <div class="bcolumn">
+                {% if visibilities[0][0] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][0] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][0]] }}</span></div></div>
+                {% endif %}
+                
+                {% if visibilities[0][1] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][1] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][1]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[0][2] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][2] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][2]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[0][3] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][3] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][3]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[0][4] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][4] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][4]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[0][5] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][5] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][5]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[0][6] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][6] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][6]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[0][7] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[0][7] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][7]] }}</span></div></div>
+                {% endif %}
+            </div>
         {% endif %}
-    </div>
+        {% if first_round <= 1 %}
+            <div class="bcolumn">
+                {% if visibilities[1][0] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[1][0] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 1</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[1][0]] }}</span></div></div>
+                {% endif %}
+                
+                {% if visibilities[1][1] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[1][1] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 2</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[1][1]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[1][2] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[1][2] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 3</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[1][2]] }}</span></div></div>
+                {% endif %}
+
+                {% if visibilities[1][3] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[1][3] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">Semifinals 4</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[1][3]] }}</span></div></div>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if first_round <= 2 %}
+            <div class="bcolumn">
+                {% if visibilities[2][0] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[2][0] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">Finals 1</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[2][0]] }}</span></div></div>
+                {% endif %}
+                
+                {% if visibilities[2][1] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[2][1] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">Finals 2</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[2][1]] }}</span></div></div>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if first_round <= 3 %}
+            <div class="bcolumn">
+                {% if visibilities[3][0] == 0 %}
+                    <div class="bteamcontainer"></div>
+                {% elif visibilities[3][0] == 1 %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">Winner</span></div></div>
+                {% else %}
+                    <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[3][0]] }}</span></div></div>
+                {% endif %}
+            </div>
+        {% endif %}
 </body>
 </html>

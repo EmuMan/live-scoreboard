@@ -12,15 +12,15 @@ document.addEventListener("DOMContentLoaded", function() {
         svg.appendChild(line);
     }
 
-    function connectTeams(x1, y1, x2, y2, x3, y3, midX) {
-        // draw line for the first team
+    function connectTeams(x1, y1, x2, y2, midX, lineToWinner) {
+        // draw line for the participant
         drawLine(x1, y1, midX, y1);
-        // draw line for the second team
-        drawLine(x2, y2, midX, y2);
         // draw line connecting the two teams
         drawLine(midX, y1, midX, y2);
         // draw line connecting the winner
-        drawLine(midX, y3, x3, y3);
+        if (lineToWinner) {
+            drawLine(midX, y2, x2, y2);
+        }
     }
 
     const bracket = this.getElementById("bracket");
@@ -35,31 +35,33 @@ document.addEventListener("DOMContentLoaded", function() {
         const teamContainers = match.getElementsByClassName("bteamcontainer");
         const nextTeamContainers = nextMatch.getElementsByClassName("bteamcontainer");
         
-        for (let j = 0; j < teamContainers.length; j += 2) {
-            const team1 = teamContainers[j].getElementsByClassName("bteam")[0];
-            const team2 = teamContainers[j + 1].getElementsByClassName("bteam")[0];
-            const nextTeam = nextTeamContainers[j / 2].getElementsByClassName("bteam")[0];
+        for (let j = 0; j < teamContainers.length; j++) {
+            const currentTeam = teamContainers[j].getElementsByClassName("bteam")[0];
+            const winningTeam = nextTeamContainers[Math.floor(j / 2)].getElementsByClassName("bteam")[0];
 
-            if (!team1 || !team2 || !nextTeam) {
+            if (!currentTeam || !winningTeam) {
                 continue;
             }
             
-            const team1Rect = team1.getBoundingClientRect();
-            const team2Rect = team2.getBoundingClientRect();
-            const nextTeamRect = nextTeam.getBoundingClientRect();
+            const currentTeamRect = currentTeam.getBoundingClientRect();
+            const winningTeamRect = winningTeam.getBoundingClientRect();
 
-            const teams12_center = (team1Rect.left + team1Rect.width / 2 + team2Rect.left + team2Rect.width / 2) / 2;
-            const team3_center = nextTeamRect.left + nextTeamRect.width / 2;
-            const midX = (teams12_center + team3_center) / 2;
+            const currentTeamCenter = currentTeamRect.left + currentTeamRect.width / 2;
+            const winningTeamCenter = winningTeamRect.left + winningTeamRect.width / 2;
+            const midX = (currentTeamCenter + winningTeamCenter) / 2;
+
+            let lineToWinner = (j % 2 === 0);
+            if (teamContainers[j - 1] && !(teamContainers[j - 1].getElementsByClassName("bteam")[0])) {
+                lineToWinner = true;
+            }
 
             connectTeams(
-                team1Rect.right,
-                team1Rect.top + team1Rect.height / 2,
-                team2Rect.right,
-                team2Rect.top + team2Rect.height / 2,
-                nextTeamRect.left,
-                nextTeamRect.top + nextTeamRect.height / 2,
-                midX
+                currentTeamRect.right,
+                currentTeamRect.top + currentTeamRect.height / 2,
+                winningTeamRect.left,
+                winningTeamRect.top + winningTeamRect.height / 2,
+                midX,
+                true
             );
         }
     }
