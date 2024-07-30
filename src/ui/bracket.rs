@@ -11,10 +11,17 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
 
     gtk_box.append(&bracket);
     
-    println!("Connecting notify...");
     gtk_box.connect_visible_notify(move |gtk_box| {
         if gtk_box.is_visible() {
-            println!("Bracket box is visible");
+            // remove all children
+            let mut first_child = gtk_box.first_child();
+            while let Some(child) = first_child {
+                gtk_box.remove(&child);
+                first_child = gtk_box.first_child();
+            }
+            // rebuild bracket
+            let bracket = build_bracket(shared_state.clone());
+            gtk_box.append(&bracket);
         }
     });
 

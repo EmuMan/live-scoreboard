@@ -1,6 +1,5 @@
 use std::fs;
 
-use gtk::prelude::*;
 use gtk::{self, gio, prelude::FileExt};
 use gtk::glib::clone;
 
@@ -18,7 +17,6 @@ pub fn open_config_file(
     let cancellable: Option<&gio::Cancellable> = None;
     file_dialogue.open(Some(parent_window), cancellable, clone!(
         #[strong] shared_state,
-        #[strong] parent_window,
         move |result| {
             result.ok()
                 .and_then(|file| file.path())
@@ -30,7 +28,8 @@ pub fn open_config_file(
                     let new_data = serde_json::from_str::<crate::AppState>(&contents);
                     match new_data {
                         Ok(data) => {
-                            overwrite_app_state(shared_state, data, &parent_window);
+                            let mut state = shared_state.lock().unwrap();
+                            *state = data;
                         }
                         Err(err) => {
                             eprintln!("Error parsing config file: {:?}", err);
@@ -73,17 +72,4 @@ fn get_json_filters() -> gio::ListStore {
     filter.set_name(Some("JSON"));
     filters.append(&filter);
     filters
-}
-
-fn overwrite_app_state(
-    shared_state: crate::SharedState,
-    new_state: crate::AppState,
-    parent_window: &gtk::ApplicationWindow,
-) {
-    {
-        let mut state = shared_state.lock().unwrap();
-        *state = new_state;
-    }
-    let new_notebook = crate::ui::build_notebook(parent_window, shared_state.clone());
-    parent_window.set_child(Some(&new_notebook));
 }

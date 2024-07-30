@@ -14,24 +14,34 @@ pub fn create_router(state: Arc<WebserverState>) -> Router {
 }
 
 pub async fn render_bracket(
-    Extension(state): Extension<Arc<WebserverState>>,
+    Extension(webserver_state): Extension<Arc<WebserverState>>,
 ) -> Result<Html<String>, AppError> {
     // Lock the context to safely access it
-    let mut context = state.context.lock().unwrap();
-    let shared_state = state.shared_state.lock().unwrap();
+    let mut context = webserver_state.context.lock().unwrap();
+    let state = webserver_state.shared_state.lock().unwrap();
     
-    let teams_display_list: Vec<String> = shared_state
+    let teams_display_list: Vec<String> = state
         .division
         .teams
         .iter()
         .map(|team| team.name.clone())
         .collect();
+    
+    let mut first_round = 0;
+    for round in &state.division.bracket {
+        if round.iter().any(|team| team.is_some()) {
+            break;
+        }
+        first_round += 1;
+    }
 
     context.insert("teams", &teams_display_list);
     context.insert("numTeams", &teams_display_list.len());
+    context.insert("bracket", &state.division.bracket);
+    context.insert("firstRound", &first_round);
 
     // Render the template
-    let rendered = state
+    let rendered = webserver_state
         .tera
         .render("bracket.html", &context);
     match rendered {
@@ -45,12 +55,12 @@ pub async fn render_bracket(
 
 pub async fn render_team(
     Path(team): Path<String>,
-    Extension(state): Extension<Arc<WebserverState>>,
+    Extension(webserver_state): Extension<Arc<WebserverState>>,
 ) -> Result<Html<String>, AppError> {
-    let mut context = state.context.lock().unwrap();
-    let shared_state = state.shared_state.lock().unwrap();
+    let mut context = webserver_state.context.lock().unwrap();
+    let state = webserver_state.shared_state.lock().unwrap();
 
-    let team = shared_state
+    let team = state
         .division
         .teams
         .iter()
@@ -70,7 +80,7 @@ pub async fn render_team(
     context.insert("team", &team.name);
     context.insert("players", &players_display_list);
 
-    let rendered = state
+    let rendered = webserver_state
         .tera
         .render("team.html", &context);
     match rendered {

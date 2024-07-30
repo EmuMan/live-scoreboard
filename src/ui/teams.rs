@@ -60,16 +60,15 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     remove_team_button.connect_clicked(clone!(
         #[strong] shared_state,
         #[weak] teams_list_box,
+        #[weak] players_list_box,
         move |_| {
             let selected_row = teams_list_box.selected_row();
             if let Some(selected_row) = selected_row {
-                let team_name = super::get_string_from_label_row(&selected_row).unwrap();
-                let mut state = shared_state.lock().unwrap();
-                if state.division.teams.iter().any(|team| team.name == team_name) {
-                    state.division.teams.retain(|team| team.name != team_name);
-                    teams_list_box.remove(&selected_row);
-                }
-                set_team_info(&teams_list_box, None);
+                let row_index = selected_row.index() as usize;
+                shared_state.lock().unwrap().division.teams.remove(row_index);
+                correct_bracket(shared_state.clone(), row_index);
+                teams_list_box.remove(&selected_row);
+                set_team_info(&players_list_box, None);
             }
         }
     ));
@@ -127,6 +126,22 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         }
     ));
 
+    gtk_box.connect_visible_notify(clone!(
+        #[strong] shared_state,
+        #[weak] teams_list_box,
+        #[weak] players_list_box,
+        move |gtk_box| {
+            if gtk_box.is_visible() {
+                let state = shared_state.lock().unwrap();
+                teams_list_box.remove_all();
+                for team in &state.division.teams {
+                    teams_list_box.append(&gtk::Label::new(Some(&team.name)));
+                }
+                set_team_info(&players_list_box, None);
+            }
+        }
+    ));
+
     gtk_box.append(&teams_list);
     gtk_box.append(&add_team_button);
     gtk_box.append(&remove_team_button);
@@ -139,8 +154,8 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     gtk_box
 }
 
-fn set_team_info(list_box: &gtk::ListBox, team_info: Option<&models::Team>) {
-    list_box.remove_all();
+fn set_team_info(players_list_box: &gtk::ListBox, team_info: Option<&models::Team>) {
+    players_list_box.remove_all();
 
     if let Some(team_info) = team_info {
         for player in &team_info.players {
@@ -156,7 +171,7 @@ fn set_team_info(list_box: &gtk::ListBox, team_info: Option<&models::Team>) {
             player_box.append(&hero_label);
             player_box.append(&role_label);
     
-            list_box.append(&player_box);
+            players_list_box.append(&player_box);
         }
     }
 }
@@ -165,5 +180,18 @@ fn init_teams(list_box: &gtk::ListBox, shared_state: &SharedState) {
     let state = shared_state.lock().unwrap();
     for team in &state.division.teams {
         list_box.append(&gtk::Label::new(Some(&team.name)));
+    }
+}
+
+fn correct_bracket(shared_state: SharedState, removed_team: usize) {
+    let mut state = shared_state.lock().unwrap();
+    for col in &mut state.division.bracket {
+        for row in col {
+            match row {
+                Some(cell) if *cell == removed_team => *row = None,
+                Some(cell) if *cell > removed_team => *row = Some(*cell - 1),
+                _ => (),
+            }
+        }
     }
 }
