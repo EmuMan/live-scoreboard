@@ -11,6 +11,7 @@ pub mod fs;
 pub struct AppState {
     pub division: models::Division,
     pub assets: Vec<models::Asset>,
+    pub current_match: models::Match,
 }
 
 type SharedState = Arc<Mutex<AppState>>;
@@ -20,6 +21,7 @@ impl AppState {
         Self {
             division,
             assets,
+            current_match: models::Match::new(),
         }
     }
 
@@ -29,6 +31,14 @@ impl AppState {
 
     pub fn team_names(&self) -> Vec<String> {
         self.division.teams.iter().map(|team| team.name.clone()).collect()
+    }
+
+    pub fn team_names_model(&self) -> gtk::StringList {
+        let mut team_names_with_none = vec![""];
+        let team_names = self.team_names();
+        let mut team_names: Vec<&str> = team_names.iter().map(|team| team.as_str()).collect();
+        team_names_with_none.append(&mut team_names);
+        gtk::StringList::new(&team_names_with_none)
     }
 
     pub fn assets_hashmap(&self) -> std::collections::HashMap<String, String> {

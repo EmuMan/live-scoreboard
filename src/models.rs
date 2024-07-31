@@ -42,6 +42,29 @@ impl Division {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Match {
+    pub round: usize,
+    pub team1: Option<usize>,
+    pub team2: Option<usize>,
+    pub score1: usize,
+    pub score2: usize,
+    pub winner: Option<usize>,
+}
+
+impl Match {
+    pub fn new() -> Self {
+        Self {
+            round: 0,
+            team1: None,
+            team2: None,
+            score1: 0,
+            score2: 0,
+            winner: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
     pub name: String,
     pub role: String,

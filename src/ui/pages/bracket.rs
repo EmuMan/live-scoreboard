@@ -35,13 +35,9 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
 
     let model;
 
-    let mut team_names_with_none = vec![""];
     {
         let state = shared_state.lock().unwrap();
-        let teams = &state.division.teams;
-        let mut team_names: Vec<&str> = teams.iter().map(|team| team.name.as_str()).collect();
-        team_names_with_none.append(&mut team_names);
-        model = gtk::StringList::new(&team_names_with_none);
+        model = state.team_names_model();
     }
 
     // first column, 8 teams

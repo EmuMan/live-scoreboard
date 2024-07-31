@@ -2,7 +2,6 @@ pub mod pages;
 pub mod components;
 
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
 
 use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
@@ -14,10 +13,10 @@ use crate::{AppState, SharedState};
 use components::refresh_box;
 
 pub fn build_ui(app: &Application) {
-    let shared_state = Arc::new(Mutex::new(AppState {
-        division: Division::new("Test Division", Vec::new(), None),
-        assets: Vec::new(),
-    }));
+    let shared_state = AppState::new_shared(
+        Division::new("Test Division", Vec::new(), None),
+        Vec::new(),
+    );
 
     let window = ApplicationWindow::builder()
         .application(app)
@@ -64,6 +63,10 @@ pub fn build_notebook(window: &ApplicationWindow, shared_state: SharedState) -> 
     let bracket_label = gtk::Label::new(Some("Bracket"));
     notebook.append_page(&bracket_box, Some(&bracket_label));
 
+    let current_match_box = pages::current_match::build_box(window, shared_state.clone());
+    let current_match_label = gtk::Label::new(Some("Current Match"));
+    notebook.append_page(&current_match_box, Some(&current_match_label));
+
     let assets_box = pages::assets::build_box(window, shared_state.clone());
     let assets_label = gtk::Label::new(Some("Assets"));
     notebook.append_page(&assets_box, Some(&assets_label));
@@ -97,6 +100,16 @@ fn make_label(label: &str) -> gtk::Label {
 
 fn make_entry() -> gtk::Entry {
     gtk::Entry::builder()
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build()
+}
+
+fn make_box(orientation: gtk::Orientation) -> gtk::Box {
+    gtk::Box::builder()
+        .orientation(orientation)
         .margin_top(12)
         .margin_bottom(12)
         .margin_start(12)
