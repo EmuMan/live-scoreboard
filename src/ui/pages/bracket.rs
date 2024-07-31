@@ -1,31 +1,31 @@
 use gtk::prelude::*;
+use gtk::glib::closure_local;
+use gtk::glib;
 
-use crate::SharedState;
+use crate::{ui::components::refresh_box, SharedState};
 
-pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) -> gtk::Box {
-    let gtk_box = gtk::Box::builder()
-        .orientation(gtk::Orientation::Vertical)
-        .build();
-    
-    let bracket = build_bracket(shared_state.clone());
+pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) -> refresh_box::RefreshBox {
+    let refresh_box = refresh_box::RefreshBox::new();
+    refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    gtk_box.append(&bracket);
-    
-    gtk_box.connect_visible_notify(move |gtk_box| {
-        if gtk_box.is_visible() {
-            // remove all children
-            let mut first_child = gtk_box.first_child();
-            while let Some(child) = first_child {
-                gtk_box.remove(&child);
-                first_child = gtk_box.first_child();
+    refresh_box.connect_closure(
+        "refresh-status",
+        false,
+        closure_local!(move |refresh_box: refresh_box::RefreshBox, new_status: bool| {
+            if new_status {
+                let bracket = build_bracket(shared_state.clone());
+                refresh_box.append(&bracket);
+            } else {
+                let mut first_child = refresh_box.first_child();
+                while let Some(child) = first_child {
+                    refresh_box.remove(&child);
+                    first_child = refresh_box.first_child();
+                }
             }
-            // rebuild bracket
-            let bracket = build_bracket(shared_state.clone());
-            gtk_box.append(&bracket);
-        }
-    });
+        })
+    );
 
-    gtk_box
+    refresh_box
 }
 
 pub fn build_bracket(shared_state: SharedState) -> gtk::Box {

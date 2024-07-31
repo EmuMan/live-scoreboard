@@ -1,7 +1,5 @@
-pub mod settings;
-pub mod teams;
-pub mod bracket;
-pub mod assets;
+pub mod pages;
+pub mod components;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -13,6 +11,7 @@ use gtk::glib;
 
 use crate::models::Division;
 use crate::{AppState, SharedState};
+use components::refresh_box;
 
 pub fn build_ui(app: &Application) {
     let shared_state = Arc::new(Mutex::new(AppState {
@@ -31,9 +30,20 @@ pub fn build_ui(app: &Application) {
 
     // quick hack to tell pages when they've been switched to
     // don't wanna set up custom signals for this...
-    notebook.connect_switch_page(move |_notebook, page, _page_num| {
-        page.set_visible(false);
-        page.set_visible(true);
+    notebook.connect_switch_page(move |notebook, page, page_num| {
+        for (i, page) in notebook.pages().iter::<glib::Object>().enumerate() {
+            if i == page_num as usize {
+                continue;
+            }
+            if let Ok(page) = page {
+                let page = page.downcast::<gtk::NotebookPage>().unwrap();
+                let refresh_box = page.child().downcast::<refresh_box::RefreshBox>().unwrap();
+                refresh_box.emit_refresh_status(false);
+            }
+        }
+        
+        let refresh_box = page.clone().downcast::<refresh_box::RefreshBox>().unwrap();
+        refresh_box.emit_refresh_status(true);
     });
 
     window.set_child(Some(&notebook));
@@ -46,19 +56,19 @@ pub fn build_notebook(window: &ApplicationWindow, shared_state: SharedState) -> 
         .scrollable(true)
         .build();
 
-    let teams_box = teams::build_box(window, shared_state.clone());
+    let teams_box = pages::teams::build_box(window, shared_state.clone());
     let teams_label = gtk::Label::new(Some("Teams"));
     notebook.append_page(&teams_box, Some(&teams_label));
 
-    let bracket_box = bracket::build_box(window, shared_state.clone());
+    let bracket_box = pages::bracket::build_box(window, shared_state.clone());
     let bracket_label = gtk::Label::new(Some("Bracket"));
     notebook.append_page(&bracket_box, Some(&bracket_label));
 
-    let assets_box = assets::build_box(window, shared_state.clone());
+    let assets_box = pages::assets::build_box(window, shared_state.clone());
     let assets_label = gtk::Label::new(Some("Assets"));
     notebook.append_page(&assets_box, Some(&assets_label));
 
-    let settings_box = settings::build_box(window, shared_state.clone());
+    let settings_box = pages::settings::build_box(window, shared_state.clone());
     let settings_label = gtk::Label::new(Some("Settings"));
     notebook.append_page(&settings_box, Some(&settings_label));
 

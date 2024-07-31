@@ -6,26 +6,25 @@ use gtk::glib;
 use glib::clone;
 use tokio::sync::oneshot;
 
-use crate::{webserver, runtime, SharedState};
+use crate::{webserver, ui::components::refresh_box, runtime, SharedState};
 
 pub fn build_box(
     primary_window: &gtk::ApplicationWindow,
     shared_state: SharedState,
-) -> gtk::Box {
+) -> refresh_box::RefreshBox {
     let server: Rc<Cell<Option<tokio::task::JoinHandle<()>>>> = Rc::new(Cell::new(None));
     let server_stop_tx: Rc<RefCell<Option<oneshot::Sender<()>>>> = Rc::new(RefCell::new(None));
 
-    let gtk_box = gtk::Box::builder()
-        .orientation(gtk::Orientation::Vertical)
-        .build();
+    let refresh_box = refresh_box::RefreshBox::new();
+    refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    let webserver_label = super::make_label("Webserver");
-    let start_ws_button = super::make_button("Start Webserver");
-    let stop_ws_button = super::make_button("Stop Webserver");
+    let webserver_label = crate::ui::make_label("Webserver");
+    let start_ws_button = crate::ui::make_button("Start Webserver");
+    let stop_ws_button = crate::ui::make_button("Stop Webserver");
     
-    let config_label = super::make_label("Config");
-    let open_config_button = super::make_button("Open Config");
-    let save_config_button = super::make_button("Save Config");
+    let config_label = crate::ui::make_label("Config");
+    let open_config_button = crate::ui::make_button("Open Config");
+    let save_config_button = crate::ui::make_button("Save Config");
 
     start_ws_button.connect_clicked(clone!(
         #[strong] server,
@@ -90,13 +89,13 @@ pub fn build_box(
         }
     ));
 
-    gtk_box.append(&webserver_label);
-    gtk_box.append(&start_ws_button);
-    gtk_box.append(&stop_ws_button);
+    refresh_box.append(&webserver_label);
+    refresh_box.append(&start_ws_button);
+    refresh_box.append(&stop_ws_button);
 
-    gtk_box.append(&config_label);
-    gtk_box.append(&open_config_button);
-    gtk_box.append(&save_config_button);
+    refresh_box.append(&config_label);
+    refresh_box.append(&open_config_button);
+    refresh_box.append(&save_config_button);
 
-    gtk_box
+    refresh_box
 }
