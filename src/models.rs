@@ -71,4 +71,11 @@ impl Team {
             players,
         }
     }
+
+    pub fn player_info(&self) -> Vec<Vec<String>> {
+        self.players
+            .iter()
+            .map(|player| vec![player.name.clone(), player.role.clone(), player.hero.clone()])
+            .collect()
+    }
 }

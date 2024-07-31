@@ -9,6 +9,12 @@ body {
     margin: 0;
 }
 
+.topleft {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .bracket {
     display: flex;
     flex-direction: row;
@@ -17,8 +23,8 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
     bottom: 0;
+    right: 0;
 }
 
 .bcolumn {
@@ -70,4 +76,10 @@ body {
     padding: 1rem;
     border: 1px solid #ccc;
     text-align: center;
+}
+
+.mainlogo {
+    width: 100px;
+    height: 100px;
+    margin: 1rem;
 }

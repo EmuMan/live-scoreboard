@@ -19,51 +19,20 @@ pub async fn render_bracket(
     // Lock the context to safely access it
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
-    
-    let teams_display_list: Vec<String> = state
-        .division
-        .teams
-        .iter()
-        .map(|team| team.name.clone())
-        .collect();
-    
-    let mut first_round = 0;
-    for round in &state.division.bracket {
-        if round.iter().any(|team| team.is_some()) {
-            break;
-        }
-        first_round += 1;
-    }
 
-    let mut visibilities: Vec<Vec<usize>> = Vec::new();
-    let mut old_round_visibility: Vec<usize> = Vec::new();
-    
-    for round in &state.division.bracket {
-        let mut round_visibility = Vec::new();
-        for (i, team) in round.iter().enumerate() {
-            let mut visibility = if team.is_some() { 2 } else { 0 };
-            if visibility == 0 &&
-                (*old_round_visibility.get(i * 2).unwrap_or(&0) != 0 ||
-                *old_round_visibility.get(i * 2 + 1).unwrap_or(&0) != 0) {
-                visibility = 1;
-            }
-            round_visibility.push(visibility);
-        }
-        visibilities.push(round_visibility.clone());
-        old_round_visibility = round_visibility;
-    }
+    let assets_hashmap = state.assets_hashmap();
+    let team_names = state.team_names();
+    let first_round = state.bracket_first_round();
+    let visibilities = state.bracket_visibilities();
 
-    context.insert("teams", &teams_display_list);
-    context.insert("num_teams", &teams_display_list.len());
+    context.insert("assets", &assets_hashmap);
+    context.insert("teams", &team_names);
+    context.insert("num_teams", &team_names.len());
     context.insert("bracket", &state.division.bracket);
     context.insert("first_round", &first_round);
     context.insert("visibilities", &visibilities);
 
-    // Render the template
-    let rendered = webserver_state
-        .tera
-        .render("bracket.html", &context);
-    match rendered {
+    match webserver_state.tera.render("bracket.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
             eprintln!("Failed to render template: {}", e);
@@ -86,23 +55,12 @@ pub async fn render_team(
         .find(|t| t.name == team)
         .ok_or(AppError::NotFound)?;
 
-    let players_display_list: Vec<Vec<String>> = team
-        .players
-        .iter()
-        .map(|player| vec![
-            player.name.clone(),
-            player.role.clone(),
-            player.hero.clone()
-        ])
-        .collect();
+    let players_display_list = team.player_info();
 
     context.insert("team", &team.name);
     context.insert("players", &players_display_list);
 
-    let rendered = webserver_state
-        .tera
-        .render("team.html", &context);
-    match rendered {
+    match webserver_state.tera.render("team.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
             eprintln!("Failed to render template: {}", e);
