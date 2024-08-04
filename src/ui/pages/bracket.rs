@@ -44,6 +44,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
     let column1 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
+    column1.append(&crate::ui::make_label("Round 1"));
     for i in 0..8 {
         let dropdown = make_dropdown(&model, 0, i, shared_state.clone());
         column1.append(&dropdown);
@@ -53,6 +54,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
     let column2 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
+    column2.append(&crate::ui::make_label("Round 2"));
     for i in 0..4 {
         let dropdown = make_dropdown(&model, 1, i, shared_state.clone());
         column2.append(&dropdown);
@@ -62,6 +64,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
     let column3 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
+    column3.append(&crate::ui::make_label("Round 3"));
     for i in 0..2 {
         let dropdown = make_dropdown(&model, 2, i, shared_state.clone());
         column3.append(&dropdown);
@@ -71,6 +74,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
     let column4 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
+    column4.append(&crate::ui::make_label("Winner"));
     for i in 0..1 {
         let dropdown = make_dropdown(&model, 3, i, shared_state.clone());
         column4.append(&dropdown);

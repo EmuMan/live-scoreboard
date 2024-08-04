@@ -45,19 +45,24 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         #[weak] assets_list_box,
         #[weak] window,
         move |_| {
-            crate::ui::make_entry_window(
+            crate::ui::open_entry_window(
                 &window,
                 "New Asset",
-                vec![String::from("Name"), String::from("Path")],
+                vec![
+                    crate::ui::EntryWindowField::Text { label: String::from("Name"), prefill: None },
+                    crate::ui::EntryWindowField::File { label: String::from("File"), filters: Vec::new() },
+                ],
                 Box::new(clone!(
                     #[strong] shared_state,
                     move |results| {
                         let mut state = shared_state.lock().unwrap();
+                        let asset_name = results.get("Name").unwrap_or(&None);
+                        let asset_file = results.get("File").unwrap_or(&None);
                         let new_asset = models::Asset::new(
-                            results.get("Name").unwrap_or(&String::from("None")),
-                            results.get("Path").unwrap_or(&String::from("/")),
+                            &asset_name.as_ref().unwrap_or(&String::from("New Asset")),
+                            &asset_file.as_ref().unwrap_or(&String::from("(none)")),
                         );
-                        assets_list_box.append(&make_asset_box(&new_asset));
+                        assets_list_box.append(&make_asset_row(&new_asset));
                         state.assets.push(new_asset);
                     }
                 )
@@ -68,12 +73,16 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     remove_asset_button.connect_clicked(clone!(
         #[strong] shared_state,
         #[weak] assets_list_box,
+        #[weak] picture_container,
         move |_| {
             let selected_row = assets_list_box.selected_row();
             if let Some(selected_row) = selected_row {
                 let row_index = selected_row.index() as usize;
                 shared_state.lock().unwrap().assets.remove(row_index);
                 assets_list_box.remove(&selected_row);
+                if let Some(child) = picture_container.first_child() {
+                    picture_container.remove(&child);
+                }
             }
         }
     ));
@@ -88,7 +97,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 if new_status {
                     let state = shared_state.lock().unwrap();
                     for asset in &state.assets {
-                        assets_list_box.append(&make_asset_box(asset));
+                        assets_list_box.append(&make_asset_row(asset));
                     }
                 } else {
                     assets_list_box.remove_all();
@@ -105,7 +114,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     refresh_box
 }
 
-fn make_asset_box(asset: &models::Asset) -> gtk::Box {
+fn make_asset_row(asset: &models::Asset) -> gtk::Box {
     let asset_box = gtk::Box::builder()
         .orientation(gtk::Orientation::Horizontal)
         .build();

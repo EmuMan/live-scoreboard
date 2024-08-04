@@ -5,25 +5,31 @@ pub struct Settings {
     pub round_count: usize,
     pub gamemodes: Vec<String>,
     pub maps: Vec<String>,
+    pub roles: Vec<String>,
+    pub heroes: Vec<String>,
 }
 
 impl Settings {
     pub fn new(
         round_count: usize,
         gamemodes: Vec<String>,
-        maps: Vec<String>
+        maps: Vec<String>,
+        roles: Vec<String>,
+        heroes: Vec<String>,
     ) -> Self {
         Self {
             round_count,
             gamemodes,
             maps,
+            roles,
+            heroes,
         }
     }
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        Self::new(5, Vec::new(), Vec::new())
+        Self::new(5, Vec::new(), Vec::new(), Vec::new(), Vec::new())
     }
 }
 

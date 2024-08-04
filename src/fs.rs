@@ -46,11 +46,11 @@ pub fn save_config_file(
     shared_state: crate::SharedState,
 ) {
     let file_dialogue = gtk::FileDialog::builder()
-    .title("Save Config File")
-    .accept_label("Save")
-    .modal(true)
-    .filters(&get_json_filters())
-    .build();
+        .title("Save Config File")
+        .accept_label("Save")
+        .modal(true)
+        .filters(&get_json_filters())
+        .build();
 
     let cancellable: Option<&gio::Cancellable> = None;
     file_dialogue.save(Some(parent_window), cancellable, move |result| {
@@ -72,5 +72,18 @@ fn get_json_filters() -> gio::ListStore {
     filter.add_pattern("*.json");
     filter.set_name(Some("JSON"));
     filters.append(&filter);
+    filters
+}
+
+pub fn get_filters(filter_info: &Vec<(String, Vec<String>)>) -> gio::ListStore {
+    let filters = gio::ListStore::new::<gtk::FileFilter>();
+    for (name, patterns) in filter_info {
+        let filter = gtk::FileFilter::new();
+        for pattern in patterns {
+            filter.add_pattern(&pattern);
+        }
+        filter.set_name(Some(&name));
+        filters.append(&filter);
+    }
     filters
 }
