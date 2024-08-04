@@ -8,14 +8,16 @@ use gtk::{Application, ApplicationWindow};
 use gtk::glib::clone;
 use gtk::glib;
 
-use crate::models::Division;
+use crate::models::{Division, Match, Settings};
 use crate::{AppState, SharedState};
 use components::refresh_box;
 
 pub fn build_ui(app: &Application) {
     let shared_state = AppState::new_shared(
-        Division::new("Test Division", Vec::new(), None),
+        Settings::default(),
+        Division::default(),
         Vec::new(),
+        Match::default(),
     );
 
     let window = ApplicationWindow::builder()
@@ -117,6 +119,14 @@ fn make_box(orientation: gtk::Orientation) -> gtk::Box {
         .build()
 }
 
+fn clear_box(box_: &gtk::Box) {
+    let mut first_child = box_.first_child();
+    while let Some(child) = first_child {
+        box_.remove(&child);
+        first_child = box_.first_child();
+    }
+}
+
 fn make_list() -> (gtk::ListBox, gtk::ScrolledWindow) {
     let list_box = gtk::ListBox::new();
 
@@ -207,5 +217,19 @@ fn get_string_from_box_row(row: &gtk::ListBoxRow) -> Option<String> {
             Some(label.label().to_string())
         },
         Err(_) => None,
+    }
+}
+
+fn get_model_with_none(options: &Vec<String>) -> gtk::StringList{
+    let mut with_none = vec!["(none)"];
+    let mut options: Vec<&str> = options.iter().map(|team| team.as_str()).collect();
+    with_none.append(&mut options);
+    gtk::StringList::new(&with_none)
+}
+
+fn index_of_or_none(list: &Vec<String>, item: &Option<String>) -> Option<usize> {
+    match item {
+        Some(item) => list.iter().position(|x| x == item),
+        None => None,
     }
 }

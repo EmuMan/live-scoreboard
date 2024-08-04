@@ -1,6 +1,33 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Settings {
+    pub round_count: usize,
+    pub gamemodes: Vec<String>,
+    pub maps: Vec<String>,
+}
+
+impl Settings {
+    pub fn new(
+        round_count: usize,
+        gamemodes: Vec<String>,
+        maps: Vec<String>
+    ) -> Self {
+        Self {
+            round_count,
+            gamemodes,
+            maps,
+        }
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self::new(5, Vec::new(), Vec::new())
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Asset {
     pub name: String,
     pub path: String,
@@ -23,7 +50,11 @@ pub struct Division {
 }
 
 impl Division {
-    pub fn new(name: &str, teams: Vec<Team>, bracket: Option<Vec<Vec<Option<usize>>>>) -> Self {
+    pub fn new(
+        name: &str,
+        teams: Vec<Team>,
+        bracket: Option<Vec<Vec<Option<usize>>>>
+    ) -> Self {
         let bracket = match bracket {
             Some(bracket) => bracket,
             None => vec![
@@ -41,9 +72,15 @@ impl Division {
     }
 }
 
+impl Default for Division {
+    fn default() -> Self {
+        Self::new("New Division", Vec::new(), None)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Match {
-    pub round: usize,
+    pub rounds: Vec<Round>,
     pub team1: Option<usize>,
     pub team2: Option<usize>,
     pub score1: usize,
@@ -52,15 +89,61 @@ pub struct Match {
 }
 
 impl Match {
-    pub fn new() -> Self {
+    pub fn new(
+        rounds: Vec<Round>,
+        team1: Option<usize>,
+        team2: Option<usize>,
+        score1: usize,
+        score2: usize,
+        winner: Option<usize>
+    ) -> Self {
         Self {
-            round: 0,
-            team1: None,
-            team2: None,
-            score1: 0,
-            score2: 0,
-            winner: None,
+            rounds,
+            team1,
+            team2,
+            score1,
+            score2,
+            winner,
         }
+    }
+}
+
+impl Default for Match {
+    fn default() -> Self {
+        Self::new(Vec::new(), None, None, 0, 0, None)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Round {
+    pub gamemode: Option<String>,
+    pub map: Option<String>,
+    pub team1_score: usize,
+    pub team2_score: usize,
+    pub completed: bool,
+}
+
+impl Round {
+    pub fn new(
+        gamemode: Option<&str>,
+        map: Option<&str>,
+        team1_score: usize,
+        team2_score: usize,
+        completed: bool
+    ) -> Self {
+        Self {
+            gamemode: gamemode.map(|gamemode| gamemode.to_string()),
+            map: map.map(|map| map.to_string()),
+            team1_score,
+            team2_score,
+            completed,
+        }
+    }
+}
+
+impl Default for Round {
+    fn default() -> Self {
+        Self::new(None, None, 0, 0, false)
     }
 }
 
@@ -78,6 +161,12 @@ impl Player {
             role: role.to_string(),
             hero: hero.to_string(),
         }
+    }
+}
+
+impl Default for Player {
+    fn default() -> Self {
+        Self::new("New Player", "(none)", "(none)")
     }
 }
 
@@ -100,5 +189,11 @@ impl Team {
             .iter()
             .map(|player| vec![player.name.clone(), player.role.clone(), player.hero.clone()])
             .collect()
+    }
+}
+
+impl Default for Team {
+    fn default() -> Self {
+        Self::new("New Team", Vec::new())
     }
 }

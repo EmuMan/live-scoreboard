@@ -9,6 +9,7 @@ pub mod fs;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppState {
+    pub settings: models::Settings,
     pub division: models::Division,
     pub assets: Vec<models::Asset>,
     pub current_match: models::Match,
@@ -17,28 +18,31 @@ pub struct AppState {
 type SharedState = Arc<Mutex<AppState>>;
 
 impl AppState {
-    pub fn new(division: models::Division, assets: Vec<models::Asset>) -> Self {
+    pub fn new(
+        settings: models::Settings,
+        division: models::Division,
+        assets: Vec<models::Asset>,
+        current_match: models::Match
+    ) -> Self {
         Self {
+            settings,
             division,
             assets,
-            current_match: models::Match::new(),
+            current_match,
         }
     }
 
-    pub fn new_shared(division: models::Division, assets: Vec<models::Asset>) -> SharedState {
-        Arc::new(Mutex::new(Self::new(division, assets)))
+    pub fn new_shared(
+        settings: models::Settings,
+        division: models::Division,
+        assets: Vec<models::Asset>,
+        current_match: models::Match
+    ) -> SharedState {
+        Arc::new(Mutex::new(Self::new(settings, division, assets, current_match)))
     }
 
     pub fn team_names(&self) -> Vec<String> {
         self.division.teams.iter().map(|team| team.name.clone()).collect()
-    }
-
-    pub fn team_names_model(&self) -> gtk::StringList {
-        let mut team_names_with_none = vec![""];
-        let team_names = self.team_names();
-        let mut team_names: Vec<&str> = team_names.iter().map(|team| team.as_str()).collect();
-        team_names_with_none.append(&mut team_names);
-        gtk::StringList::new(&team_names_with_none)
     }
 
     pub fn assets_hashmap(&self) -> std::collections::HashMap<String, String> {
@@ -76,6 +80,15 @@ impl AppState {
             first_round += 1;
         }
         first_round
+    }
+
+    pub fn correct_rounds_to_count(&mut self) {
+        while self.settings.round_count < self.current_match.rounds.len() {
+            self.current_match.rounds.pop();
+        }
+        while self.settings.round_count > self.current_match.rounds.len() {
+            self.current_match.rounds.push(models::Round::default());
+        }
     }
 }
 

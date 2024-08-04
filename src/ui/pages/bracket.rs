@@ -37,7 +37,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
 
     {
         let state = shared_state.lock().unwrap();
-        model = state.team_names_model();
+        model = crate::ui::get_model_with_none(&state.team_names());
     }
 
     // first column, 8 teams

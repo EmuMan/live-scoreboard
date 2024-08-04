@@ -27,7 +27,8 @@ pub fn open_config_file(
                 .map(|contents| {
                     let new_data = serde_json::from_str::<crate::AppState>(&contents);
                     match new_data {
-                        Ok(data) => {
+                        Ok(mut data) => {
+                            data.correct_rounds_to_count();
                             let mut state = shared_state.lock().unwrap();
                             *state = data;
                         }
