@@ -113,59 +113,88 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
     let map_info_box = crate::ui::make_box(gtk::Orientation::Vertical);
 
     let gamemode_label = gtk::Label::new(Some("Gamemode"));
-    let gamemode_model = crate::ui::get_model_with_none(&state.settings.gamemodes);
+    let gamemode_names = state.settings.gamemodes.iter().map(|g| g.name.clone()).collect();
+    let gamemode_model = crate::ui::get_model_with_none(&gamemode_names);
     let gamemode_dropdown = gtk::DropDown::new(Some(gamemode_model), gtk::Expression::NONE);
-    if let Some(index) = crate::ui::index_of_or_none(&state.settings.gamemodes, &round.gamemode) {
+    let gamemode_index = crate::ui::index_of_or_none(&gamemode_names, &round.gamemode);
+    let gamemode = gamemode_index.and_then(|index| state.settings.gamemodes.get(index));
+    if let Some(index) = gamemode_index {
         gamemode_dropdown.set_selected(index as u32 + 1);
     } else {
         gamemode_dropdown.set_selected(0);
         // TODO: set gamemode in app state to none
     }
+
+    let map_label = gtk::Label::new(Some("Map"));
+    let map_names = gamemode
+        .and_then(|gamemode| Some(gamemode.maps.iter().map(|m| m.name.clone()).collect()))
+        .unwrap_or(Vec::new());
+    let map_model = crate::ui::get_model_with_none(&map_names);
+    let map_dropdown = gtk::DropDown::new(Some(map_model), gtk::Expression::NONE);
+    if let Some(index) = crate::ui::index_of_or_none(&map_names, &round.map) {
+        map_dropdown.set_selected(index as u32 + 1);
+    } else {
+        map_dropdown.set_selected(0);
+        // TODO: set map in app state to none
+    }
+
     gamemode_dropdown.connect_selected_notify(clone!(
         #[strong] shared_state,
+        #[weak] map_dropdown,
         move |dropdown| {
             let selected_index = dropdown.selected();
-            let mut state = shared_state.lock().unwrap();
-            let gamemode = if selected_index == 0 {
-                None
-            } else {
-                Some(state.settings.gamemodes[(selected_index - 1) as usize].clone())
-            };
-            if let Some(round) = state.current_match.rounds.get_mut(round_index) {
-                round.gamemode = gamemode;
+            let new_map_model;
+            {
+                let mut state = shared_state.lock().unwrap();
+                let gamemode = if selected_index == 0 {
+                    new_map_model = crate::ui::get_model_with_none(&Vec::new());
+                    None
+                } else {
+                    let gamemode = state.settings.gamemodes.get((selected_index - 1) as usize)
+                        .and_then(|gamemode| Some(gamemode.clone()));
+                    let map_names: Option<Vec<String>> = gamemode
+                        .as_ref()
+                        .and_then(|gamemode| Some(gamemode.maps.iter().map(|m| m.name.clone()).collect()));
+                    new_map_model = crate::ui::get_model_with_none(&map_names.unwrap_or(Vec::new()));
+                    gamemode
+                };
+                if let Some(round) = state.current_match.rounds.get_mut(round_index) {
+                    round.gamemode = gamemode.and_then(|gamemode| Some(gamemode.name));
+                }
             }
+            map_dropdown.set_model(Some(&new_map_model));
+            map_dropdown.set_selected(0);
         }
     ));
 
-    let map_name_label = gtk::Label::new(Some("Map"));
-    let map_name_model = crate::ui::get_model_with_none(&state.settings.maps);
-    let map_name_dropdown = gtk::DropDown::new(Some(map_name_model), gtk::Expression::NONE);
-    if let Some(index) = crate::ui::index_of_or_none(&state.settings.maps, &round.map) {
-        map_name_dropdown.set_selected(index as u32 + 1);
-    } else {
-        map_name_dropdown.set_selected(0);
-        // TODO: set map in app state to none
-    }
-    map_name_dropdown.connect_selected_notify(clone!(
+    map_dropdown.connect_selected_notify(clone!(
         #[strong] shared_state,
+        #[weak] gamemode_dropdown,
         move |dropdown| {
             let selected_index = dropdown.selected();
             let mut state = shared_state.lock().unwrap();
-            let map = if selected_index == 0 {
-                None
-            } else {
-                Some(state.settings.maps[(selected_index - 1) as usize].clone())
-            };
-            if let Some(round) = state.current_match.rounds.get_mut(round_index) {
-                round.map = map;
+
+            let gamemode_index = gamemode_dropdown.selected();
+            if gamemode_index == 0 {
+                return;
+            }
+            if let Some(gamemode) = state.settings.gamemodes.get((gamemode_index - 1) as usize) {
+                let selected_map = if selected_index == 0 {
+                    None
+                } else {
+                    Some(gamemode.maps[(selected_index - 1) as usize].clone())
+                };
+                if let Some(round) = state.current_match.rounds.get_mut(round_index) {
+                    round.map = selected_map.and_then(|map| Some(map.name));
+                }
             }
         }
     ));
 
     map_info_box.append(&gamemode_label);
     map_info_box.append(&gamemode_dropdown);
-    map_info_box.append(&map_name_label);
-    map_info_box.append(&map_name_dropdown);
+    map_info_box.append(&map_label);
+    map_info_box.append(&map_dropdown);
 
     let scores_box = crate::ui::make_box(gtk::Orientation::Vertical);
 

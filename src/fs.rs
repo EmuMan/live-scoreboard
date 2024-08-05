@@ -1,6 +1,6 @@
 use std::fs;
 
-use gtk::{self, gio, prelude::FileExt};
+use gtk::{self, gio, prelude::*};
 use gtk::glib::clone;
 
 pub fn open_config_file(

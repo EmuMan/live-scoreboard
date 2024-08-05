@@ -1,39 +1,122 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Settings {
     pub round_count: usize,
-    pub gamemodes: Vec<String>,
-    pub maps: Vec<String>,
-    pub roles: Vec<String>,
-    pub heroes: Vec<String>,
+    pub gamemodes: Vec<Gamemode>,
+    pub roles: Vec<Role>,
+    pub characters: Vec<Character>,
 }
 
 impl Settings {
     pub fn new(
         round_count: usize,
-        gamemodes: Vec<String>,
-        maps: Vec<String>,
-        roles: Vec<String>,
-        heroes: Vec<String>,
+        gamemodes: Vec<Gamemode>,
+        roles: Vec<Role>,
+        characters: Vec<Character>,
     ) -> Self {
         Self {
             round_count,
             gamemodes,
-            maps,
             roles,
-            heroes,
+            characters,
         }
     }
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        Self::new(5, Vec::new(), Vec::new(), Vec::new(), Vec::new())
+        Self::new(5, Vec::new(), Vec::new(), Vec::new())
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct Gamemode {
+    pub name: String,
+    pub icon: Option<String>,
+    pub maps: Vec<Map>,
+}
+
+impl Gamemode {
+    pub fn new(name: &str, icon: Option<String>, maps: Vec<Map>) -> Self {
+        Self {
+            name: name.to_string(),
+            icon,
+            maps,
+        }
+    }
+}
+
+impl Default for Gamemode {
+    fn default() -> Self {
+        Self::new("New Gamemode", None, Vec::new())
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct Map {
+    pub name: String,
+    pub icon: Option<String>,
+}
+
+impl Map {
+    pub fn new(name: &str, icon: Option<String>) -> Self {
+        Self {
+            name: name.to_string(),
+            icon,
+        }
+    }
+}
+
+impl Default for Map {
+    fn default() -> Self {
+        Self::new("New Map", None)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct Role {
+    pub name: String,
+    pub icon: Option<String>,
+}
+
+impl Role {
+    pub fn new(name: &str, icon: Option<String>) -> Self {
+        Self {
+            name: name.to_string(),
+            icon,
+        }
+    }
+}
+
+impl Default for Role {
+    fn default() -> Self {
+        Self::new("New Role", None)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct Character {
+    pub name: String,
+    pub icon: Option<String>,
+}
+
+impl Character {
+    pub fn new(name: &str, icon: Option<String>) -> Self {
+        Self {
+            name: name.to_string(),
+            icon,
+        }
+    }
+}
+
+impl Default for Character {
+    fn default() -> Self {
+        Self::new("New Character", None)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Asset {
     pub name: String,
     pub path: String,
@@ -48,7 +131,7 @@ impl Asset {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Division {
     pub name: String,
     pub teams: Vec<Team>,
@@ -84,7 +167,7 @@ impl Default for Division {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Match {
     pub rounds: Vec<Round>,
     pub team1: Option<usize>,
@@ -120,7 +203,7 @@ impl Default for Match {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Round {
     pub gamemode: Option<String>,
     pub map: Option<String>,
@@ -153,19 +236,19 @@ impl Default for Round {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Player {
     pub name: String,
     pub role: String,
-    pub hero: String,
+    pub character: String,
 }
 
 impl Player {
-    pub fn new(name: &str, role: &str, hero: &str) -> Self {
+    pub fn new(name: &str, role: &str, character: &str) -> Self {
         Self {
             name: name.to_string(),
             role: role.to_string(),
-            hero: hero.to_string(),
+            character: character.to_string(),
         }
     }
 }
@@ -176,16 +259,18 @@ impl Default for Player {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Team {
     pub name: String,
+    pub icon: Option<String>,
     pub players: Vec<Player>,
 }
 
 impl Team {
-    pub fn new(name: &str, players: Vec<Player>) -> Self {
+    pub fn new(name: &str, icon: Option<String>, players: Vec<Player>) -> Self {
         Self {
             name: name.to_string(),
+            icon,
             players,
         }
     }
@@ -193,13 +278,13 @@ impl Team {
     pub fn player_info(&self) -> Vec<Vec<String>> {
         self.players
             .iter()
-            .map(|player| vec![player.name.clone(), player.role.clone(), player.hero.clone()])
+            .map(|player| vec![player.name.clone(), player.role.clone(), player.character.clone()])
             .collect()
     }
 }
 
 impl Default for Team {
     fn default() -> Self {
-        Self::new("New Team", Vec::new())
+        Self::new("New Team", None, Vec::new())
     }
 }

@@ -39,14 +39,21 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
             crate::ui::open_entry_window(
                 &window,
                 "New Team",
-                vec![EntryWindowField::Text { label: String::from("Name"), prefill: None }],
+                vec![
+                    EntryWindowField::Text { label: String::from("Name"), prefill: None },
+                    EntryWindowField::File { label: String::from("Icon"), filters: vec![
+                        (String::from("Image"), vec![String::from("*.png"), String::from("*.jpg"), String::from("*.jpeg")])
+                    ] },
+                ],
                 Box::new(clone!(
                     #[strong] shared_state,
                     move |results| {
                         let mut state = shared_state.lock().unwrap();
                         let team_name = results.get("Name").unwrap_or(&None);
+                        let team_icon = results.get("Icon").unwrap_or(&None);
                         let new_team = models::Team::new(
                             &team_name.as_ref().unwrap_or(&String::from("New String")),
+                            team_icon.clone(),
                             vec![]
                         );
                         teams_list_box.append(&make_team_row(&new_team));
@@ -87,12 +94,12 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                     EntryWindowField::Text { label: String::from("Name"), prefill: None },
                     EntryWindowField::DropDown {
                         label: String::from("Role"),
-                        options: state.settings.roles.clone(),
+                        options: state.settings.roles.iter().map(|role| role.name.clone()).collect(),
                         prefill: None,
                     },
                     EntryWindowField::DropDown {
                         label: String::from("Hero"),
-                        options: state.settings.heroes.clone(),
+                        options: state.settings.characters.iter().map(|character| character.name.clone()).collect(),
                         prefill: None,
                     },
                 ],
@@ -183,7 +190,13 @@ fn make_team_row(team: &models::Team) -> gtk::Box {
         .build();
 
     let team_label = crate::ui::make_label(&team.name);
+    let team_icon = match &team.icon {
+        Some(icon) => crate::ui::load_image(icon, 30, 30),
+        None => gtk::Image::from_icon_name("image-missing"), // TODO: Implement missing icon
+    };
+
     team_box.append(&team_label);
+    team_box.append(&team_icon);
 
     team_box
 }
@@ -205,7 +218,7 @@ fn make_player_row(player: &models::Player) -> gtk::Box {
 
     let player_label = crate::ui::make_label(&player.name);
     let role_label = crate::ui::make_label(&player.role);
-    let hero_label = crate::ui::make_label(&player.hero);
+    let hero_label = crate::ui::make_label(&player.character);
 
     player_box.append(&player_label);
     player_box.append(&role_label);

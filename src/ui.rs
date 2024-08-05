@@ -263,7 +263,7 @@ fn open_entry_window(
                     .title(label)
                     .accept_label("Select")
                     .modal(true)
-                    .filters(&fs::get_filters(&filters))
+                    .filters(&fs::get_filters(filters))
                     .build();
 
                 file_box.append(&file_button);
@@ -311,6 +311,14 @@ fn open_entry_window(
     ));
 
     window.present();
+}
+
+pub fn load_image(path: &str, width: usize, height: usize) -> gtk::Image {
+    let image = gtk::Image::builder()
+        .file(path)
+        .build();
+    image.set_size_request(width as i32, height as i32);
+    image
 }
 
 fn get_string_from_box_row(row: &gtk::ListBoxRow) -> Option<String> {

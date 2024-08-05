@@ -27,10 +27,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 let state = shared_state.lock().unwrap();
                 let asset = state.assets.iter().find(|asset| asset.name == asset_name);
                 if let Some(asset) = asset {
-                    let image = gtk::Image::builder()
-                        .file(&asset.path)
-                        .build();
-                    image.set_size_request(200, 200);
+                    let image = crate::ui::load_image(&asset.path, 200, 200);
                     if let Some(child) = picture_container.first_child() {
                         picture_container.remove(&child);
                     }
