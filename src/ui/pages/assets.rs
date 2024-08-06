@@ -53,7 +53,11 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 "New Asset",
                 vec![
                     crate::ui::EntryWindowField::Text { label: String::from("Name"), prefill: None },
-                    crate::ui::EntryWindowField::File { label: String::from("File"), filters: Vec::new() },
+                    crate::ui::EntryWindowField::File {
+                        label: String::from("File"),
+                        filters: Vec::new(),
+                        prefill: None
+                    },
                 ],
                 Box::new(clone!(
                     #[strong] shared_state,
@@ -85,6 +89,49 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 if let Some(child) = picture_container.first_child() {
                     picture_container.remove(&child);
                 }
+            }
+        }
+    ));
+
+    edit_asset_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] assets_list_box,
+        #[weak] picture_container,
+        #[weak] window,
+        move |_| {
+            if let Some(selected_row) = assets_list_box.selected_row() {
+                let row_index = selected_row.index() as usize;
+                let asset = shared_state.lock().unwrap().assets.get(row_index).unwrap().clone();
+                crate::ui::open_entry_window(
+                    &window,
+                    "Edit Asset",
+                    vec![
+                        crate::ui::EntryWindowField::Text { label: String::from("Name"), prefill: Some(asset.name) },
+                        crate::ui::EntryWindowField::File {
+                            label: String::from("File"),
+                            filters: Vec::new(),
+                            prefill: Some(asset.path),
+                        },
+                    ],
+                    Box::new(clone!(
+                        #[strong] shared_state,
+                        move |results| {
+                            let mut state = shared_state.lock().unwrap();
+                            let asset_name = results.get("Name").unwrap_or(&None);
+                            let asset_file = results.get("File").unwrap_or(&None);
+                            let new_asset = models::Asset::new(
+                                &asset_name.as_ref().unwrap_or(&String::from("New Asset")),
+                                &asset_file.as_ref().unwrap_or(&String::from("(none)")),
+                            );
+                            state.assets[row_index] = new_asset.clone();
+                            assets_list_box.remove(&selected_row);
+                            assets_list_box.insert(&make_asset_row(&new_asset), row_index as i32);
+                            assets_list_box.select_row(None as Option<&gtk::ListBoxRow>);
+                            // TODO: Select the row again
+                            crate::ui::clear_box(&picture_container);
+                        }
+                    )
+                ));
             }
         }
     ));

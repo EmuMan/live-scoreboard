@@ -17,7 +17,7 @@ use components::refresh_box;
 pub enum EntryWindowField {
     Text { label: String, prefill: Option<String> },
     DropDown { label: String, options: Vec<String>, prefill: Option<String> },
-    File { label: String, filters: Vec<(String, Vec<String>)> },
+    File { label: String, filters: Vec<(String, Vec<String>)>, prefill: Option<String> },
 }
 
 impl EntryWindowField {
@@ -254,10 +254,10 @@ fn open_entry_window(
                 entry_box.append(&field_box);
                 field_widgets.insert(field.clone(), Box::new(dropdown));
             },
-            EntryWindowField::File { label, filters } => {
+            EntryWindowField::File { label, filters, prefill } => {
                 let file_box = make_box(gtk::Orientation::Vertical);
                 let file_button = make_button(label);
-                let file_label = make_label("No file selected");
+                let file_label = make_label(prefill.as_ref().unwrap_or(&String::from("(none)")));
 
                 let file_dialog = gtk::FileDialog::builder()
                     .title(label)

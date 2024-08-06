@@ -55,9 +55,13 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 "New Team",
                 vec![
                     EntryWindowField::Text { label: String::from("Name"), prefill: None },
-                    EntryWindowField::File { label: String::from("Icon"), filters: vec![
+                    EntryWindowField::File {
+                        label: String::from("Icon"),
+                        filters: vec![
                         (String::from("Image"), vec![String::from("*.png"), String::from("*.jpg"), String::from("*.jpeg")])
-                    ] },
+                        ],
+                        prefill: None,
+                    },
                 ],
                 Box::new(clone!(
                     #[strong] shared_state,
@@ -89,6 +93,53 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 correct_bracket(shared_state.clone(), row_index);
                 teams_list_box.remove(&selected_row);
                 set_team_info(&players_list_box, None);
+            }
+        }
+    ));
+
+    edit_team_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] teams_list_box,
+        #[weak] players_list_box,
+        #[weak] window,
+        move |_| {
+            if let Some(selected_row) = teams_list_box.selected_row() {
+                let row_index = selected_row.index() as usize;
+                let old_team = shared_state.lock().unwrap().division.teams[row_index].clone();
+                crate::ui::open_entry_window(
+                    &window,
+                    "Edit Team",
+                    vec![
+                        EntryWindowField::Text { label: String::from("Name"), prefill: Some(old_team.name.clone()) },
+                        EntryWindowField::File {
+                            label: String::from("Icon"),
+                            filters: vec![
+                                (String::from("Image"), vec![String::from("*.png"), String::from("*.jpg"), String::from("*.jpeg")])
+                            ],
+                            prefill: old_team.icon.clone(),
+                        },
+                    ],
+                    Box::new(clone!(
+                        #[strong] shared_state,
+                        #[weak] players_list_box,
+                        move |results| {
+                            let mut state = shared_state.lock().unwrap();
+                            let team_name = results.get("Name").unwrap_or(&None);
+                            let team_icon = results.get("Icon").unwrap_or(&None);
+                            let new_team = models::Team::new(
+                                &team_name.as_ref().unwrap_or(&String::from("New String")),
+                                team_icon.clone(),
+                                state.division.teams[row_index].players.clone()
+                            );
+                            state.division.teams[row_index] = new_team.clone();
+                            teams_list_box.remove(&selected_row);
+                            teams_list_box.insert(&make_team_row(&new_team), row_index as i32);
+                            teams_list_box.select_row(None as Option<&gtk::ListBoxRow>);
+                            // TODO: Select the edited team
+                            set_team_info(&players_list_box, None);
+                        }
+                    )
+                ));
             }
         }
     ));
