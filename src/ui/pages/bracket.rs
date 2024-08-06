@@ -2,15 +2,15 @@ use gtk::prelude::*;
 use gtk::glib::closure_local;
 use gtk::glib;
 
-use crate::{ui::components::refresh_box, SharedState};
+use crate::{ui::{util, components::refresh_box::RefreshBox}, SharedState};
 
-pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) -> refresh_box::RefreshBox {
+pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) -> RefreshBox {
 
     //////////////////
     // DECLARATIONS //
     //////////////////
 
-    let refresh_box = refresh_box::RefreshBox::new();
+    let refresh_box = RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
     /////////////////
@@ -20,7 +20,7 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
     refresh_box.connect_closure(
         "refresh-status",
         false,
-        closure_local!(move |refresh_box: refresh_box::RefreshBox, new_status: bool| {
+        closure_local!(move |refresh_box: RefreshBox, new_status: bool| {
             if new_status {
                 let bracket = build_bracket(shared_state.clone());
                 refresh_box.append(&bracket);
@@ -50,14 +50,14 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
 
     {
         let state = shared_state.lock().unwrap();
-        model = crate::ui::get_model_with_none(&state.team_names());
+        model = util::get_model_with_none(&state.team_names());
     }
 
     // first column, 8 teams
     let column1 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
-    column1.append(&crate::ui::make_label("Round 1"));
+    column1.append(&util::make_label("Round 1", 12, 12, 12, 12));
     for i in 0..8 {
         let dropdown = make_dropdown(&model, 0, i, shared_state.clone());
         column1.append(&dropdown);
@@ -67,7 +67,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
     let column2 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
-    column2.append(&crate::ui::make_label("Round 2"));
+    column2.append(&util::make_label("Round 2", 12, 12, 12, 12));
     for i in 0..4 {
         let dropdown = make_dropdown(&model, 1, i, shared_state.clone());
         column2.append(&dropdown);
@@ -77,7 +77,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
     let column3 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
-    column3.append(&crate::ui::make_label("Round 3"));
+    column3.append(&util::make_label("Round 3", 12, 12, 12, 12));
     for i in 0..2 {
         let dropdown = make_dropdown(&model, 2, i, shared_state.clone());
         column3.append(&dropdown);
@@ -87,7 +87,7 @@ pub fn build_bracket(shared_state: SharedState) -> gtk::Box {
     let column4 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
-    column4.append(&crate::ui::make_label("Winner"));
+    column4.append(&util::make_label("Winner", 12, 12, 12, 12));
     for i in 0..1 {
         let dropdown = make_dropdown(&model, 3, i, shared_state.clone());
         column4.append(&dropdown);

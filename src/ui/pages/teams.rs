@@ -4,38 +4,34 @@ use gtk::glib;
 
 use crate::AppState;
 use crate::ui::synced_list_box::{SyncedListBox, ConnectableList};
-use crate::{models, ui::components::refresh_box, SharedState};
+use crate::{models, ui::{util, entry_window::EntryWindowField, components::refresh_box::RefreshBox}, SharedState};
 
-pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> refresh_box::RefreshBox {
+pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> RefreshBox {
 
     //////////////////
     // DECLARATIONS //
     //////////////////
 
-    let refresh_box = refresh_box::RefreshBox::new();
+    let refresh_box = RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    let teams_label = crate::ui::make_label("Teams");
-    let (teams_list_box, teams_list) = crate::ui::make_list();
-    let teams_buttons_box = gtk::Box::builder()
-        .orientation(gtk::Orientation::Horizontal)
-        .build();
-    let add_team_button = crate::ui::make_button("Add");
-    let remove_team_button = crate::ui::make_button("Remove");
-    let edit_team_button = crate::ui::make_button("Edit");
-    let move_team_up_button = crate::ui::make_button("Move Up");
-    let move_team_down_button = crate::ui::make_button("Move Down");
+    let teams_label = util::make_label("Teams", 12, 12, 12, 12);
+    let (teams_list_box, teams_list) = util::make_list(12, 12, 12, 12);
+    let teams_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
+    let add_team_button = util::make_button("Add", 12, 12, 0, 0);
+    let remove_team_button = util::make_button("Remove", 12, 12, 0, 0);
+    let edit_team_button = util::make_button("Edit", 12, 12, 0, 0);
+    let move_team_up_button = util::make_button("Move Up", 12, 12, 0, 0);
+    let move_team_down_button = util::make_button("Move Down", 12, 12, 0, 0);
 
-    let players_label = crate::ui::make_label("Players");
-    let (players_list_box, players_list_window) = crate::ui::make_list();
-    let players_buttons_box = gtk::Box::builder()
-        .orientation(gtk::Orientation::Horizontal)
-        .build();
-    let add_player_button = crate::ui::make_button("Add");
-    let remove_player_button = crate::ui::make_button("Remove");
-    let edit_player_button = crate::ui::make_button("Edit");
-    let move_player_up_button = crate::ui::make_button("Move Up");
-    let move_player_down_button = crate::ui::make_button("Move Down");
+    let players_label = util::make_label("Players", 12, 12, 12, 12);
+    let (players_list_box, players_list_window) = util::make_list(12, 12, 12, 12);
+    let players_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
+    let add_player_button = util::make_button("Add", 12, 12, 0, 0);
+    let remove_player_button = util::make_button("Remove", 12, 12, 0, 0);
+    let edit_player_button = util::make_button("Edit", 12, 12, 0, 0);
+    let move_player_up_button = util::make_button("Move Up", 12, 12, 0, 0);
+    let move_player_down_button = util::make_button("Move Down", 12, 12, 0, 0);
 
     /////////////////
     // CONNECTIONS //
@@ -52,11 +48,11 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         Box::new(move |state| Some(&mut state.division.teams)),
         Box::new(move |team| {
             vec![
-                crate::ui::EntryWindowField::Text {
+                EntryWindowField::Text {
                     label: String::from("Name"),
                     prefill: team.as_ref().map(|team| team.name.clone())
                 },
-                crate::ui::EntryWindowField::File {
+                EntryWindowField::File {
                     label: String::from("Icon"),
                     filters: Vec::new(),
                     prefill: team.as_ref().and_then(|team| team.icon.clone())
@@ -106,17 +102,17 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         Box::new(move |player| {
             let state = shared_state.lock().unwrap();
             vec![
-                crate::ui::EntryWindowField::Text {
+                EntryWindowField::Text {
                     label: String::from("Name"),
                     prefill: player.as_ref().map(|player| player.name.clone())
                 },
-                crate::ui::EntryWindowField::DropDown {
+                EntryWindowField::DropDown {
                     label: String::from("Role"),
                     options: state.settings.roles.iter()
                         .map(|role| role.name.clone()).collect(),
                     prefill: player.as_ref().map(|player| player.role.clone())
                 },
-                crate::ui::EntryWindowField::DropDown {
+                EntryWindowField::DropDown {
                     label: String::from("Character"),
                     options: state.settings.characters.iter()
                         .map(|character| character.name.clone()).collect(),
@@ -156,7 +152,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
             #[strong] teams_synced_list_box,
             #[weak] teams_list_box,
             #[weak] players_list_box,
-            move |_box: refresh_box::RefreshBox, new_status: bool| {
+            move |_box: RefreshBox, new_status: bool| {
                 if new_status {
                     teams_synced_list_box.lock().unwrap().populate();
                 } else {
@@ -198,9 +194,9 @@ fn make_team_row(team: &models::Team) -> gtk::Box {
         .orientation(gtk::Orientation::Horizontal)
         .build();
 
-    let team_label = crate::ui::make_label(&team.name);
+    let team_label = util::make_label(&team.name, 12, 12, 12, 12);
     let team_icon = match &team.icon {
-        Some(icon) => crate::ui::load_image(icon, 30, 30),
+        Some(icon) => util::load_image(icon, 30, 30),
         None => gtk::Image::from_icon_name("image-missing"), // TODO: Implement missing icon
     };
 
@@ -215,9 +211,9 @@ fn make_player_row(player: &models::Player) -> gtk::Box {
         .orientation(gtk::Orientation::Horizontal)
         .build();
 
-    let player_label = crate::ui::make_label(&player.name);
-    let role_label = crate::ui::make_label(&player.role);
-    let hero_label = crate::ui::make_label(&player.character);
+    let player_label = util::make_label(&player.name, 12, 12, 12, 12);
+    let role_label = util::make_label(&player.role, 12, 12, 12, 12);
+    let hero_label = util::make_label(&player.character, 12, 12, 12, 12);
 
     player_box.append(&player_label);
     player_box.append(&role_label);

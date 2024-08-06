@@ -6,12 +6,12 @@ use gtk::glib;
 use glib::clone;
 use tokio::sync::oneshot;
 
-use crate::{webserver, ui::components::refresh_box, runtime, SharedState};
+use crate::{webserver, ui::{util, components::refresh_box::RefreshBox}, runtime, SharedState};
 
 pub fn build_box(
     primary_window: &gtk::ApplicationWindow,
     shared_state: SharedState,
-) -> refresh_box::RefreshBox {
+) -> RefreshBox {
     let server: Rc<Cell<Option<tokio::task::JoinHandle<()>>>> = Rc::new(Cell::new(None));
     let server_stop_tx: Rc<RefCell<Option<oneshot::Sender<()>>>> = Rc::new(RefCell::new(None));
 
@@ -19,16 +19,18 @@ pub fn build_box(
     // DECLARATIONS //
     //////////////////
 
-    let refresh_box = refresh_box::RefreshBox::new();
+    let refresh_box = RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    let webserver_label = crate::ui::make_label("Webserver");
-    let start_ws_button = crate::ui::make_button("Start Webserver");
-    let stop_ws_button = crate::ui::make_button("Stop Webserver");
+    let webserver_label = util::make_label("Webserver", 12, 12, 12, 12);
+    let webserver_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
+    let start_ws_button = util::make_button("Start Webserver", 12, 12, 0, 0);
+    let stop_ws_button = util::make_button("Stop Webserver", 12, 12, 0, 0);
     
-    let config_label = crate::ui::make_label("Config");
-    let open_config_button = crate::ui::make_button("Open Config");
-    let save_config_button = crate::ui::make_button("Save Config");
+    let config_label = util::make_label("Config", 12, 12, 12, 12);
+    let config_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
+    let open_config_button = util::make_button("Open Config", 12, 12, 0, 0);
+    let save_config_button = util::make_button("Save Config", 12, 12, 0, 0);
 
     /////////////////
     // CONNECTIONS //
@@ -100,14 +102,18 @@ pub fn build_box(
     /////////////////
     // ARRANGEMENT //
     /////////////////
+    
+    webserver_buttons_box.append(&start_ws_button);
+    webserver_buttons_box.append(&stop_ws_button);
+
+    config_buttons_box.append(&open_config_button);
+    config_buttons_box.append(&save_config_button);
 
     refresh_box.append(&webserver_label);
-    refresh_box.append(&start_ws_button);
-    refresh_box.append(&stop_ws_button);
+    refresh_box.append(&webserver_buttons_box);
 
     refresh_box.append(&config_label);
-    refresh_box.append(&open_config_button);
-    refresh_box.append(&save_config_button);
+    refresh_box.append(&config_buttons_box);
 
     refresh_box
 }

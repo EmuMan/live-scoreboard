@@ -2,28 +2,26 @@ use gtk::prelude::*;
 use gtk::glib::{self, clone, closure_local};
 
 use crate::ui::synced_list_box::{SyncedListBox, ConnectableList};
-use crate::{models, ui::components::refresh_box, SharedState};
+use crate::{models, ui::{util, components::refresh_box::RefreshBox, entry_window::EntryWindowField}, SharedState};
 
-pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> refresh_box::RefreshBox {
+pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> RefreshBox {
 
     //////////////////
     // DECLARATIONS //
     //////////////////
 
-    let refresh_box = refresh_box::RefreshBox::new();
+    let refresh_box = RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    let (assets_list_box, assets_list) = crate::ui::make_list();
-    let assets_buttons_box = gtk::Box::builder()
-        .orientation(gtk::Orientation::Horizontal)
-        .build();
-    let add_asset_button = crate::ui::make_button("Add");
-    let remove_asset_button = crate::ui::make_button("Remove");
-    let edit_asset_button = crate::ui::make_button("Edit");
-    let move_asset_up_button = crate::ui::make_button("Move Up");
-    let move_asset_down_button = crate::ui::make_button("Move Down");
+    let (assets_list_box, assets_list) = util::make_list(12, 12, 12, 12);
+    let assets_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
+    let add_asset_button = util::make_button("Add", 12, 12, 0, 0);
+    let remove_asset_button = util::make_button("Remove", 12, 12, 0, 0);
+    let edit_asset_button = util::make_button("Edit", 12, 12, 0, 0);
+    let move_asset_up_button = util::make_button("Move Up", 12, 12, 0, 0);
+    let move_asset_down_button = util::make_button("Move Down", 12, 12, 0, 0);
 
-    let picture_container = crate::ui::make_box(gtk::Orientation::Horizontal);
+    let picture_container = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
 
     /////////////////
     // CONNECTIONS //
@@ -40,11 +38,11 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         Box::new(move |state| Some(&mut state.assets)),
         Box::new(move |asset| {
             vec![
-                crate::ui::EntryWindowField::Text {
+                EntryWindowField::Text {
                     label: String::from("Name"),
                     prefill: asset.as_ref().map(|asset| asset.name.clone())
                 },
-                crate::ui::EntryWindowField::File {
+                EntryWindowField::File {
                     label: String::from("Path"),
                     filters: Vec::new(),
                     prefill: asset.as_ref().map(|asset| asset.path.clone())
@@ -75,7 +73,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 let index = selected_row.index() as usize;
                 let state = shared_state.lock().unwrap();
                 if let Some(asset) = state.assets.get(index) {
-                    let image = crate::ui::load_image(&asset.path, 200, 200);
+                    let image = util::load_image(&asset.path, 200, 200);
                     if let Some(child) = picture_container.first_child() {
                         picture_container.remove(&child);
                     }
@@ -91,7 +89,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         closure_local!(
             #[strong] assets_synced_list_box,
             #[weak] assets_list_box,
-            move |_box: refresh_box::RefreshBox, new_status: bool| {
+            move |_box: RefreshBox, new_status: bool| {
                 if new_status {
                     assets_synced_list_box.lock().unwrap().populate();
                 } else {
@@ -123,8 +121,8 @@ fn make_asset_row(asset: &models::Asset) -> gtk::Box {
         .orientation(gtk::Orientation::Horizontal)
         .build();
 
-    let name_label = crate::ui::make_label(&asset.name);
-    let path_label = crate::ui::make_label(&asset.path);
+    let name_label = util::make_label(&asset.name, 12, 12, 12, 12);
+    let path_label = util::make_label(&asset.path, 12, 12, 12, 12);
 
     asset_box.append(&name_label);
     asset_box.append(&path_label);

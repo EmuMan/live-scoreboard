@@ -2,6 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use gtk::prelude::*;
 
+use crate::ui::entry_window::{EntryWindowField, open_entry_window};
+
 #[derive(Clone)]
 pub struct SyncedListBox<T> {
     pub window: gtk::ApplicationWindow,
@@ -10,7 +12,7 @@ pub struct SyncedListBox<T> {
     pub make_row: Arc<Mutex<dyn Fn(&T) -> gtk::ListBoxRow>>,
     pub get_data: Arc<Mutex<dyn Fn(&crate::AppState) -> Option<&Vec<T>>>>,
     pub get_mut_data: Arc<Mutex<dyn Fn(&mut crate::AppState) -> Option<&mut Vec<T>>>>,
-    pub to_entry_window: Arc<Mutex<dyn Fn(Option<&T>) -> Vec<super::EntryWindowField>>>,
+    pub to_entry_window: Arc<Mutex<dyn Fn(Option<&T>) -> Vec<EntryWindowField>>>,
     pub from_entry_window: Arc<Mutex<dyn Fn(&std::collections::HashMap<String, Option<String>>, Option<&T>) -> T>>,
 }
 
@@ -38,7 +40,7 @@ impl<T: Clone + 'static> SyncedListBox<T> {
         make_row: Box<dyn Fn(&T) -> gtk::ListBoxRow>,
         get_data: Box<dyn Fn(&crate::AppState) -> Option<&Vec<T>>>,
         get_mut_data: Box<dyn Fn(&mut crate::AppState) -> Option<&mut Vec<T>>>,
-        to_entry_window: Box<dyn Fn(Option<&T>) -> Vec<super::EntryWindowField>>,
+        to_entry_window: Box<dyn Fn(Option<&T>) -> Vec<EntryWindowField>>,
         from_entry_window: Box<dyn Fn(&std::collections::HashMap<String, Option<String>>, Option<&T>) -> T>,
     ) -> Self {
         Self {
@@ -60,7 +62,7 @@ impl<T: Clone + 'static> SyncedListBox<T> {
         make_row: Box<dyn Fn(&T) -> gtk::ListBoxRow>,
         get_data: Box<dyn Fn(&crate::AppState) -> Option<&Vec<T>>>,
         get_mut_data: Box<dyn Fn(&mut crate::AppState) -> Option<&mut Vec<T>>>,
-        to_entry_window: Box<dyn Fn(Option<&T>) -> Vec<super::EntryWindowField>>,
+        to_entry_window: Box<dyn Fn(Option<&T>) -> Vec<EntryWindowField>>,
         from_entry_window: Box<dyn Fn(&std::collections::HashMap<String, Option<String>>, Option<&T>) -> T>,
     ) -> Arc<Mutex<Self>> {
         Arc::new(Mutex::new(Self::new(
@@ -98,7 +100,7 @@ impl<T: Clone + 'static> SyncedListBox<T> {
         let get_mut_data = self.get_mut_data.clone();
         let make_row = self.make_row.clone();
 
-        crate::ui::open_entry_window(
+        open_entry_window(
             &self.window,
             "Add Item",
             entry_window_fields,
@@ -143,7 +145,7 @@ impl<T: Clone + 'static> SyncedListBox<T> {
             let get_mut_data = self.get_mut_data.clone();
             let make_row = self.make_row.clone();
 
-            crate::ui::open_entry_window(
+            open_entry_window(
                 &self.window,
                 "Edit Item",
                 entry_window_fields,
