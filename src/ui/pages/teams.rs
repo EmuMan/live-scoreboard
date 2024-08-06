@@ -8,13 +8,27 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     let refresh_box = refresh_box::RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
+    let teams_label = crate::ui::make_label("Teams");
     let (teams_list_box, teams_list) = crate::ui::make_list();
-    let add_team_button = crate::ui::make_button("Add Team");
-    let remove_team_button = crate::ui::make_button("Remove Team");
+    let teams_buttons_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Horizontal)
+        .build();
+    let add_team_button = crate::ui::make_button("Add");
+    let remove_team_button = crate::ui::make_button("Remove");
+    let edit_team_button = crate::ui::make_button("Edit");
+    let move_team_up_button = crate::ui::make_button("Move Up");
+    let move_team_down_button = crate::ui::make_button("Move Down");
 
+    let players_label = crate::ui::make_label("Players");
     let (players_list_box, players_list_window) = crate::ui::make_list();
-    let add_player_button = crate::ui::make_button("Add Player");
-    let remove_player_button = crate::ui::make_button("Remove Player");
+    let players_buttons_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Horizontal)
+        .build();
+    let add_player_button = crate::ui::make_button("Add");
+    let remove_player_button = crate::ui::make_button("Remove");
+    let edit_player_button = crate::ui::make_button("Edit");
+    let move_player_up_button = crate::ui::make_button("Move Up");
+    let move_player_down_button = crate::ui::make_button("Move Down");
     
     teams_list_box.connect_row_selected(clone!(
         #[strong] shared_state,
@@ -69,13 +83,44 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         #[weak] teams_list_box,
         #[weak] players_list_box,
         move |_| {
-            let selected_row = teams_list_box.selected_row();
-            if let Some(selected_row) = selected_row {
+            if let Some(selected_row) = teams_list_box.selected_row() {
                 let row_index = selected_row.index() as usize;
                 shared_state.lock().unwrap().division.teams.remove(row_index);
                 correct_bracket(shared_state.clone(), row_index);
                 teams_list_box.remove(&selected_row);
                 set_team_info(&players_list_box, None);
+            }
+        }
+    ));
+
+    move_team_up_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] teams_list_box,
+        move |_| {
+            if let Some(selected_row) = teams_list_box.selected_row() {
+                let row_index = selected_row.index() as usize;
+                if row_index > 0 {
+                    shared_state.lock().unwrap().division.teams.swap(row_index, row_index - 1);
+                    teams_list_box.remove(&selected_row);
+                    teams_list_box.insert(&selected_row, row_index as i32 - 1);
+                    teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved team
+                }
+            }
+        }
+    ));
+
+    move_team_down_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] teams_list_box,
+        move |_| {
+            if let Some(selected_row) = teams_list_box.selected_row() {
+                let row_index = selected_row.index() as usize;
+                if row_index < shared_state.lock().unwrap().division.teams.len() - 1 {
+                    shared_state.lock().unwrap().division.teams.swap(row_index, row_index + 1);
+                    teams_list_box.remove(&selected_row);
+                    teams_list_box.insert(&selected_row, row_index as i32 + 1);
+                    teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved team
+                }
             }
         }
     ));
@@ -149,6 +194,56 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         }
     ));
 
+    move_player_up_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] teams_list_box,
+        #[weak] players_list_box,
+        move |_| {
+            if let Some(selected_team_row) = teams_list_box.selected_row() {
+                let mut new_team: Option<models::Team> = None;
+                let team_name = crate::ui::get_string_from_box_row(&selected_team_row).unwrap();
+                {
+                    let mut state = shared_state.lock().unwrap();
+                    let team = state.division.teams.iter_mut().find(|team| team.name == team_name).unwrap();
+                    if let Some(selected_player_row) = players_list_box.selected_row() {
+                        let player_index = selected_player_row.index() as usize;
+                        if player_index > 0 {
+                            team.players.swap(player_index, player_index - 1);
+                            new_team = Some(team.clone());
+                        }
+                    }
+                }
+                set_team_info(&players_list_box, new_team.as_ref());
+                teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved player
+            }
+        }
+    ));
+
+    move_player_down_button.connect_clicked(clone!(
+        #[strong] shared_state,
+        #[weak] teams_list_box,
+        #[weak] players_list_box,
+        move |_| {
+            if let Some(selected_team_row) = teams_list_box.selected_row() {
+                let mut new_team: Option<models::Team> = None;
+                let team_name = crate::ui::get_string_from_box_row(&selected_team_row).unwrap();
+                {
+                    let mut state = shared_state.lock().unwrap();
+                    let team = state.division.teams.iter_mut().find(|team| team.name == team_name).unwrap();
+                    if let Some(selected_player_row) = players_list_box.selected_row() {
+                        let player_index = selected_player_row.index() as usize;
+                        if player_index < team.players.len() - 1 {
+                            team.players.swap(player_index, player_index + 1);
+                            new_team = Some(team.clone());
+                        }
+                    }
+                }
+                set_team_info(&players_list_box, new_team.as_ref());
+                teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved player
+            }
+        }
+    ));
+
     refresh_box.connect_closure(
         "refresh-status",
         false,
@@ -167,12 +262,24 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         )
     );
 
+    teams_buttons_box.append(&add_team_button);
+    teams_buttons_box.append(&remove_team_button);
+    teams_buttons_box.append(&edit_team_button);
+    teams_buttons_box.append(&move_team_up_button);
+    teams_buttons_box.append(&move_team_down_button);
+
+    players_buttons_box.append(&add_player_button);
+    players_buttons_box.append(&remove_player_button);
+    players_buttons_box.append(&edit_player_button);
+    players_buttons_box.append(&move_player_up_button);
+    players_buttons_box.append(&move_player_down_button);
+
+    refresh_box.append(&teams_label);
     refresh_box.append(&teams_list);
-    refresh_box.append(&add_team_button);
-    refresh_box.append(&remove_team_button);
+    refresh_box.append(&teams_buttons_box);
+    refresh_box.append(&players_label);
     refresh_box.append(&players_list_window);
-    refresh_box.append(&add_player_button);
-    refresh_box.append(&remove_player_button);
+    refresh_box.append(&players_buttons_box);
 
     refresh_box
 }

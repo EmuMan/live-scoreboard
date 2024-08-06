@@ -57,8 +57,8 @@ fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
     let team_index = if number == 1 { state.current_match.team1 } else { state.current_match.team2 };
     if let Some(team_index) = team_index {
         dropdown.set_selected(team_index as u32 + 1);
-        let team_logo = get_team_logo(&state.division.teams.get(team_index).unwrap().name);
-        team_logo_container.append(&team_logo);
+        let team_logo_path = &state.division.teams.get(team_index).unwrap().icon;
+        team_logo_container.append(&get_team_icon(team_logo_path.as_deref()));
     } else {
         dropdown.set_selected(0);
     }
@@ -81,9 +81,8 @@ fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
                 team_logo_container.remove(&first_child);
             }
             if let Some(team_index) = *team_index {
-                let team_name = &state.team_names()[team_index];
-                let team_logo = get_team_logo(team_name);
-                team_logo_container.append(&team_logo);
+                let team = &state.division.teams[team_index];
+                team_logo_container.append(&get_team_icon(team.icon.as_deref()));
             }
         }
     ));
@@ -95,9 +94,12 @@ fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
     team_box
 }
 
-fn get_team_logo(team_name: &str) -> gtk::Label {
-    let team_logo = gtk::Label::new(Some(team_name));
-    team_logo
+fn get_team_icon(path: Option<&str>) -> gtk::Image {
+    if let Some(path) = path {
+        crate::ui::load_image(path, 200, 200)
+    } else {
+        gtk::Image::from_icon_name("image-missing")
+    }
 }
 
 fn set_map_progress_box(shared_state: SharedState, map_progress_box: gtk::Box) {
