@@ -5,11 +5,20 @@ use gtk::glib::{self, clone};
 use crate::{models, ui::components::refresh_box, SharedState, AppState};
 
 pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) -> refresh_box::RefreshBox {
+
+    //////////////////
+    // DECLARATIONS //
+    //////////////////
+    
     let refresh_box = refresh_box::RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
     let teams_container = crate::ui::make_box(gtk::Orientation::Horizontal);
     let map_progress_container = crate::ui::make_box(gtk::Orientation::Horizontal);
+
+    /////////////////
+    // CONNECTIONS //
+    /////////////////
 
     refresh_box.connect_closure(
         "refresh-status",
@@ -30,6 +39,10 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
             }
         )
     );
+
+    /////////////////
+    // ARRANGEMENT //
+    /////////////////
 
     refresh_box.append(&teams_container);
     refresh_box.append(&map_progress_container);

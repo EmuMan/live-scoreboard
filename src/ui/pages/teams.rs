@@ -2,9 +2,16 @@ use gtk::prelude::*;
 use gtk::glib::{clone, closure_local};
 use gtk::glib;
 
-use crate::{models, ui::{EntryWindowField, components::refresh_box}, SharedState};
+use crate::AppState;
+use crate::ui::synced_list_box::{SyncedListBox, ConnectableList};
+use crate::{models, ui::components::refresh_box, SharedState};
 
 pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> refresh_box::RefreshBox {
+
+    //////////////////
+    // DECLARATIONS //
+    //////////////////
+
     let refresh_box = refresh_box::RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
@@ -29,269 +36,116 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     let edit_player_button = crate::ui::make_button("Edit");
     let move_player_up_button = crate::ui::make_button("Move Up");
     let move_player_down_button = crate::ui::make_button("Move Down");
-    
-    teams_list_box.connect_row_selected(clone!(
-        #[strong] shared_state,
-        #[weak] players_list_box,
-        move |_, row| {
-            if let Some(row) = row {
-                let team_name = crate::ui::get_string_from_box_row(&row).unwrap();
-                let state = shared_state.lock().unwrap();
-                let team = state.division.teams.iter().find(|team| team.name == team_name);
-                if let Some(team) = team {
-                    set_team_info(&players_list_box, Some(team));
-                }
+
+    /////////////////
+    // CONNECTIONS //
+    /////////////////
+
+    let teams_synced_list_box = SyncedListBox::new_shared(
+        window.clone(),
+        teams_list_box.clone(),
+        shared_state.clone(),
+        Box::new(move |team| {
+            gtk::ListBoxRow::builder().child(&make_team_row(team)).build()
+        }),
+        Box::new(move |state| Some(&state.division.teams)),
+        Box::new(move |state| Some(&mut state.division.teams)),
+        Box::new(move |team| {
+            vec![
+                crate::ui::EntryWindowField::Text {
+                    label: String::from("Name"),
+                    prefill: team.as_ref().map(|team| team.name.clone())
+                },
+                crate::ui::EntryWindowField::File {
+                    label: String::from("Icon"),
+                    filters: Vec::new(),
+                    prefill: team.as_ref().and_then(|team| team.icon.clone())
+                },
+            ]
+        }),
+        Box::new(move |fields, old_team_data| {
+            let team_name = fields.get("Name").unwrap_or(&None);
+            let team_icon = fields.get("Icon").unwrap_or(&None);
+            models::Team::new(
+                &team_name.as_ref().unwrap_or(&String::from("New Team")),
+                team_icon.clone(),
+                old_team_data.map(|team| team.players.clone()).unwrap_or(Vec::new()),
+            )
+        },
+    ));
+
+    teams_synced_list_box.connect_add_button(&add_team_button);
+    teams_synced_list_box.connect_remove_button(&remove_team_button, Some(Box::new(correct_bracket)));
+    teams_synced_list_box.connect_edit_button(&edit_team_button);
+    teams_synced_list_box.connect_move_button(&move_team_up_button, -1, Some(Box::new(correct_bracket)));
+    teams_synced_list_box.connect_move_button(&move_team_down_button, 1, Some(Box::new(correct_bracket)));
+
+    let players_synced_list_box = SyncedListBox::new_shared(
+        window.clone(),
+        players_list_box.clone(),
+        shared_state.clone(),
+        Box::new(move |player| {
+            gtk::ListBoxRow::builder().child(&make_player_row(player)).build()
+        }),
+        Box::new(clone!(
+            #[strong] teams_list_box,
+            move |state| {
+                let selected_row = teams_list_box.selected_row();
+                let index = selected_row.map(|row| row.index() as usize).unwrap_or(0);
+                state.division.teams.get(index).map(|team| &team.players)
             }
-        }
-    ));
-
-    add_team_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        #[weak] window,
-        move |_| {
-            crate::ui::open_entry_window(
-                &window,
-                "New Team",
-                vec![
-                    EntryWindowField::Text { label: String::from("Name"), prefill: None },
-                    EntryWindowField::File {
-                        label: String::from("Icon"),
-                        filters: vec![
-                        (String::from("Image"), vec![String::from("*.png"), String::from("*.jpg"), String::from("*.jpeg")])
-                        ],
-                        prefill: None,
-                    },
-                ],
-                Box::new(clone!(
-                    #[strong] shared_state,
-                    move |results| {
-                        let mut state = shared_state.lock().unwrap();
-                        let team_name = results.get("Name").unwrap_or(&None);
-                        let team_icon = results.get("Icon").unwrap_or(&None);
-                        let new_team = models::Team::new(
-                            &team_name.as_ref().unwrap_or(&String::from("New String")),
-                            team_icon.clone(),
-                            vec![]
-                        );
-                        teams_list_box.append(&make_team_row(&new_team));
-                        state.division.teams.push(new_team);
-                    }
-                )
-            ));
-        }
-    ));
-
-    remove_team_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        #[weak] players_list_box,
-        move |_| {
-            if let Some(selected_row) = teams_list_box.selected_row() {
-                let row_index = selected_row.index() as usize;
-                shared_state.lock().unwrap().division.teams.remove(row_index);
-                correct_bracket(shared_state.clone(), row_index);
-                teams_list_box.remove(&selected_row);
-                set_team_info(&players_list_box, None);
+        )),
+        Box::new(clone!(
+            #[strong] teams_list_box,
+            move |state| {
+                let selected_row = teams_list_box.selected_row();
+                let index = selected_row.map(|row| row.index() as usize).unwrap_or(0);
+                state.division.teams.get_mut(index).map(|team| &mut team.players)
             }
-        }
-    ));
-
-    edit_team_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        #[weak] players_list_box,
-        #[weak] window,
-        move |_| {
-            if let Some(selected_row) = teams_list_box.selected_row() {
-                let row_index = selected_row.index() as usize;
-                let old_team = shared_state.lock().unwrap().division.teams[row_index].clone();
-                crate::ui::open_entry_window(
-                    &window,
-                    "Edit Team",
-                    vec![
-                        EntryWindowField::Text { label: String::from("Name"), prefill: Some(old_team.name.clone()) },
-                        EntryWindowField::File {
-                            label: String::from("Icon"),
-                            filters: vec![
-                                (String::from("Image"), vec![String::from("*.png"), String::from("*.jpg"), String::from("*.jpeg")])
-                            ],
-                            prefill: old_team.icon.clone(),
-                        },
-                    ],
-                    Box::new(clone!(
-                        #[strong] shared_state,
-                        #[weak] players_list_box,
-                        move |results| {
-                            let mut state = shared_state.lock().unwrap();
-                            let team_name = results.get("Name").unwrap_or(&None);
-                            let team_icon = results.get("Icon").unwrap_or(&None);
-                            let new_team = models::Team::new(
-                                &team_name.as_ref().unwrap_or(&String::from("New String")),
-                                team_icon.clone(),
-                                state.division.teams[row_index].players.clone()
-                            );
-                            state.division.teams[row_index] = new_team.clone();
-                            teams_list_box.remove(&selected_row);
-                            teams_list_box.insert(&make_team_row(&new_team), row_index as i32);
-                            teams_list_box.select_row(None as Option<&gtk::ListBoxRow>);
-                            // TODO: Select the edited team
-                            set_team_info(&players_list_box, None);
-                        }
-                    )
-                ));
-            }
-        }
-    ));
-
-    move_team_up_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        move |_| {
-            if let Some(selected_row) = teams_list_box.selected_row() {
-                let row_index = selected_row.index() as usize;
-                if row_index > 0 {
-                    shared_state.lock().unwrap().division.teams.swap(row_index, row_index - 1);
-                    teams_list_box.remove(&selected_row);
-                    teams_list_box.insert(&selected_row, row_index as i32 - 1);
-                    teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved team
-                }
-            }
-        }
-    ));
-
-    move_team_down_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        move |_| {
-            if let Some(selected_row) = teams_list_box.selected_row() {
-                let row_index = selected_row.index() as usize;
-                if row_index < shared_state.lock().unwrap().division.teams.len() - 1 {
-                    shared_state.lock().unwrap().division.teams.swap(row_index, row_index + 1);
-                    teams_list_box.remove(&selected_row);
-                    teams_list_box.insert(&selected_row, row_index as i32 + 1);
-                    teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved team
-                }
-            }
-        }
-    ));
-
-    add_player_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        #[weak] players_list_box,
-        #[weak] window,
-        move |_| {
+        )),
+        Box::new(move |player| {
             let state = shared_state.lock().unwrap();
-            crate::ui::open_entry_window(
-                &window,
-                "New Player",
-                vec![
-                    EntryWindowField::Text { label: String::from("Name"), prefill: None },
-                    EntryWindowField::DropDown {
-                        label: String::from("Role"),
-                        options: state.settings.roles.iter().map(|role| role.name.clone()).collect(),
-                        prefill: None,
-                    },
-                    EntryWindowField::DropDown {
-                        label: String::from("Hero"),
-                        options: state.settings.characters.iter().map(|character| character.name.clone()).collect(),
-                        prefill: None,
-                    },
-                ],
-                Box::new(clone!(
-                    #[strong] shared_state,
-                    move |results| {
-                        let mut state = shared_state.lock().unwrap();
-                        let player_name = results.get("Name").unwrap_or(&None);
-                        let player_role = results.get("Role").unwrap_or(&None);
-                        let player_hero = results.get("Hero").unwrap_or(&None);
-                        let new_player = models::Player::new(
-                            &player_name.as_ref().unwrap_or(&String::from("New Player")),
-                            &player_role.as_ref().unwrap_or(&String::from("Unknown")),
-                            &player_hero.as_ref().unwrap_or(&String::from("Unknown")),
-                        );
-                        let team_row = teams_list_box.selected_row();
-                        if let Some(team_row) = team_row {
-                            let team_name = crate::ui::get_string_from_box_row(&team_row).unwrap();
-                            let team = state.division.teams.iter_mut().find(|team| team.name == team_name);
-                            if let Some(team) = team {
-                                team.players.push(new_player);
-                                set_team_info(&players_list_box, Some(team));
-                            }
-                        }
-                    }
-                ))
-            );
-        }
+            vec![
+                crate::ui::EntryWindowField::Text {
+                    label: String::from("Name"),
+                    prefill: player.as_ref().map(|player| player.name.clone())
+                },
+                crate::ui::EntryWindowField::DropDown {
+                    label: String::from("Role"),
+                    options: state.settings.roles.iter()
+                        .map(|role| role.name.clone()).collect(),
+                    prefill: player.as_ref().map(|player| player.role.clone())
+                },
+                crate::ui::EntryWindowField::DropDown {
+                    label: String::from("Character"),
+                    options: state.settings.characters.iter()
+                        .map(|character| character.name.clone()).collect(),
+                    prefill: player.as_ref().map(|player| player.character.clone())
+                },
+            ]
+        }),
+        Box::new(move |fields, _| {
+            let player_name = fields.get("Name").unwrap_or(&None);
+            let player_role = fields.get("Role").unwrap_or(&None);
+            let player_character = fields.get("Character").unwrap_or(&None);
+            models::Player::new(
+                &player_name.as_ref().unwrap_or(&String::from("New Player")),
+                &player_role.as_ref().unwrap_or(&String::from("(none)")),
+                &player_character.as_ref().unwrap_or(&String::from("(none)")),
+            )
+        },
     ));
 
-    remove_player_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        #[weak] players_list_box,
-        move |_| {
-            if let Some(selected_team_row) = teams_list_box.selected_row() {
-                let team_name = crate::ui::get_string_from_box_row(&selected_team_row).unwrap();
-                let mut state = shared_state.lock().unwrap();
-                let team = state.division.teams.iter_mut().find(|team| team.name == team_name).unwrap();
-                let selected_player_row = players_list_box.selected_row();
-                if let Some(selected_player_row) = selected_player_row {
-                    let player_name = crate::ui::get_string_from_box_row(&selected_player_row).unwrap();
-                    team.players.retain(|player| player.name != player_name);
-                    set_team_info(&players_list_box, Some(team));
-                }
-            }
-        }
-    ));
+    players_synced_list_box.connect_add_button(&add_player_button);
+    players_synced_list_box.connect_remove_button(&remove_player_button, None);
+    players_synced_list_box.connect_edit_button(&edit_player_button);
+    players_synced_list_box.connect_move_button(&move_player_up_button, -1, None);
+    players_synced_list_box.connect_move_button(&move_player_down_button, 1, None);
 
-    move_player_up_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        #[weak] players_list_box,
-        move |_| {
-            if let Some(selected_team_row) = teams_list_box.selected_row() {
-                let mut new_team: Option<models::Team> = None;
-                let team_name = crate::ui::get_string_from_box_row(&selected_team_row).unwrap();
-                {
-                    let mut state = shared_state.lock().unwrap();
-                    let team = state.division.teams.iter_mut().find(|team| team.name == team_name).unwrap();
-                    if let Some(selected_player_row) = players_list_box.selected_row() {
-                        let player_index = selected_player_row.index() as usize;
-                        if player_index > 0 {
-                            team.players.swap(player_index, player_index - 1);
-                            new_team = Some(team.clone());
-                        }
-                    }
-                }
-                set_team_info(&players_list_box, new_team.as_ref());
-                teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved player
-            }
-        }
-    ));
-
-    move_player_down_button.connect_clicked(clone!(
-        #[strong] shared_state,
-        #[weak] teams_list_box,
-        #[weak] players_list_box,
-        move |_| {
-            if let Some(selected_team_row) = teams_list_box.selected_row() {
-                let mut new_team: Option<models::Team> = None;
-                let team_name = crate::ui::get_string_from_box_row(&selected_team_row).unwrap();
-                {
-                    let mut state = shared_state.lock().unwrap();
-                    let team = state.division.teams.iter_mut().find(|team| team.name == team_name).unwrap();
-                    if let Some(selected_player_row) = players_list_box.selected_row() {
-                        let player_index = selected_player_row.index() as usize;
-                        if player_index < team.players.len() - 1 {
-                            team.players.swap(player_index, player_index + 1);
-                            new_team = Some(team.clone());
-                        }
-                    }
-                }
-                set_team_info(&players_list_box, new_team.as_ref());
-                teams_list_box.select_row(None as Option<&gtk::ListBoxRow>); // TODO: Select the moved player
-            }
+    teams_list_box.connect_row_selected(clone!(
+        #[strong] players_synced_list_box,
+        move |_, _| {
+            players_synced_list_box.lock().unwrap().populate();
         }
     ));
 
@@ -299,20 +153,24 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         "refresh-status",
         false,
         closure_local!(
-            #[strong] shared_state,
+            #[strong] teams_synced_list_box,
             #[weak] teams_list_box,
             #[weak] players_list_box,
             move |_box: refresh_box::RefreshBox, new_status: bool| {
                 if new_status {
-                    init_teams(&teams_list_box, &shared_state);
-                    set_team_info(&players_list_box, None);
+                    teams_synced_list_box.lock().unwrap().populate();
                 } else {
                     teams_list_box.remove_all();
+                    players_list_box.remove_all();
                 }
             }
         )
     );
 
+    /////////////////
+    // ARRANGEMENT //
+    /////////////////
+    
     teams_buttons_box.append(&add_team_button);
     teams_buttons_box.append(&remove_team_button);
     teams_buttons_box.append(&edit_team_button);
@@ -335,13 +193,6 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     refresh_box
 }
 
-fn init_teams(list_box: &gtk::ListBox, shared_state: &SharedState) {
-    let state = shared_state.lock().unwrap();
-    for team in &state.division.teams {
-        list_box.append(&make_team_row(team));
-    }
-}
-
 fn make_team_row(team: &models::Team) -> gtk::Box {
     let team_box = gtk::Box::builder()
         .orientation(gtk::Orientation::Horizontal)
@@ -357,16 +208,6 @@ fn make_team_row(team: &models::Team) -> gtk::Box {
     team_box.append(&team_icon);
 
     team_box
-}
-
-fn set_team_info(players_list_box: &gtk::ListBox, team_info: Option<&models::Team>) {
-    players_list_box.remove_all();
-
-    if let Some(team_info) = team_info {
-        for player in &team_info.players {
-            players_list_box.append(&make_player_row(player));
-        }
-    }
 }
 
 fn make_player_row(player: &models::Player) -> gtk::Box {
@@ -385,15 +226,23 @@ fn make_player_row(player: &models::Player) -> gtk::Box {
     player_box
 }
 
-fn correct_bracket(shared_state: SharedState, removed_team: usize) {
-    let mut state = shared_state.lock().unwrap();
+fn correct_bracket(state: &mut AppState, old_index: usize, new_index: Option<usize>) {
+    // there is a better way to do this but i'm feeling kinda lazy rn tbh ngl
     for col in &mut state.division.bracket {
         for row in col {
-            match row {
-                Some(cell) if *cell == removed_team => *row = None,
-                Some(cell) if *cell > removed_team => *row = Some(*cell - 1),
-                _ => (),
-            }
+            *row = correct_index(*row, old_index, new_index);
         }
+    }
+}
+
+fn correct_index(index: Option<usize>, moved_from: usize, moved_to: Option<usize>) -> Option<usize> {
+    match (index, moved_to) {
+        (Some(index), Some(moved_to)) if index == moved_from => Some(moved_to),
+        (Some(index), Some(moved_to)) if index > moved_from && index <= moved_to => Some(index - 1),
+        (Some(index), Some(moved_to)) if index < moved_from && index >= moved_to => Some(index + 1),
+        (Some(index), None) if index == moved_from => None,
+        (Some(index), None) if index > moved_from => Some(index - 1),
+        (Some(index), _) => Some(index),
+        _ => None,
     }
 }

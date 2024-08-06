@@ -5,8 +5,17 @@ use gtk::glib;
 use crate::{ui::components::refresh_box, SharedState};
 
 pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) -> refresh_box::RefreshBox {
+
+    //////////////////
+    // DECLARATIONS //
+    //////////////////
+
     let refresh_box = refresh_box::RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
+
+    /////////////////
+    // CONNECTIONS //
+    /////////////////
 
     refresh_box.connect_closure(
         "refresh-status",
@@ -24,6 +33,10 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
             }
         })
     );
+
+    /////////////////
+    // ARRANGEMENT //
+    /////////////////
 
     refresh_box
 }

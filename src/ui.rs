@@ -1,5 +1,6 @@
 pub mod pages;
 pub mod components;
+pub mod synced_list_box;
 
 use std::collections::HashMap;
 
@@ -319,17 +320,6 @@ pub fn load_image(path: &str, width: usize, height: usize) -> gtk::Image {
         .build();
     image.set_size_request(width as i32, height as i32);
     image
-}
-
-fn get_string_from_box_row(row: &gtk::ListBoxRow) -> Option<String> {
-    let box_ = row.child()?.downcast::<gtk::Box>();
-    match box_ {
-        Ok(box_) => {
-            let label = box_.first_child()?.downcast::<gtk::Label>().ok()?;
-            Some(label.label().to_string())
-        },
-        Err(_) => None,
-    }
 }
 
 fn get_model_with_none(options: &Vec<String>) -> gtk::StringList{

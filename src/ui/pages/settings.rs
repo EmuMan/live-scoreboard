@@ -15,6 +15,10 @@ pub fn build_box(
     let server: Rc<Cell<Option<tokio::task::JoinHandle<()>>>> = Rc::new(Cell::new(None));
     let server_stop_tx: Rc<RefCell<Option<oneshot::Sender<()>>>> = Rc::new(RefCell::new(None));
 
+    //////////////////
+    // DECLARATIONS //
+    //////////////////
+
     let refresh_box = refresh_box::RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
@@ -25,6 +29,10 @@ pub fn build_box(
     let config_label = crate::ui::make_label("Config");
     let open_config_button = crate::ui::make_button("Open Config");
     let save_config_button = crate::ui::make_button("Save Config");
+
+    /////////////////
+    // CONNECTIONS //
+    /////////////////
 
     start_ws_button.connect_clicked(clone!(
         #[strong] server,
@@ -88,6 +96,10 @@ pub fn build_box(
             crate::fs::save_config_file(&primary_window, shared_state.clone());
         }
     ));
+
+    /////////////////
+    // ARRANGEMENT //
+    /////////////////
 
     refresh_box.append(&webserver_label);
     refresh_box.append(&start_ws_button);
