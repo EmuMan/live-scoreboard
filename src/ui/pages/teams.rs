@@ -228,8 +228,10 @@ fn make_player_row(player: &models::Player) -> gtk::Box {
 fn correct_bracket(state: &mut AppState, old_index: usize, new_index: Option<usize>) {
     // there is a better way to do this but i'm feeling kinda lazy rn tbh ngl
     for col in &mut state.division.bracket {
-        for row in col {
-            *row = correct_index(*row, old_index, new_index);
+        for matchup in col {
+            matchup.team1 = correct_index(matchup.team1, old_index, new_index);
+            matchup.team2 = correct_index(matchup.team2, old_index, new_index);
+            matchup.winner = correct_index(matchup.winner, old_index, new_index);
         }
     }
 }

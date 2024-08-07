@@ -98,8 +98,6 @@ fn populate_context(context: &mut tera::Context, state: &crate::AppState) {
     context.insert("teams", &state.division.teams);
     context.insert("team_count", &state.team_names().len());
     context.insert("bracket", &state.division.bracket);
-    context.insert("bracket_round_count", &state.bracket_round_count());
-    context.insert("bracket_visibilities", &state.bracket_visibilities());
     context.insert("team1", &state.current_match.team1.map(|i| &state.division.teams[i]));
     context.insert("team2", &state.current_match.team2.map(|i| &state.division.teams[i]));
     context.insert("team1_score", &state.current_match.team1_score());

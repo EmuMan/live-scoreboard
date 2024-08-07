@@ -135,22 +135,21 @@ impl Asset {
 pub struct Division {
     pub name: String,
     pub teams: Vec<Team>,
-    pub bracket: Vec<Vec<Option<usize>>>,
+    pub bracket: Vec<Vec<Matchup>>,
 }
 
 impl Division {
     pub fn new(
         name: &str,
         teams: Vec<Team>,
-        bracket: Option<Vec<Vec<Option<usize>>>>
+        bracket: Option<Vec<Vec<Matchup>>>
     ) -> Self {
         let bracket = match bracket {
             Some(bracket) => bracket,
             None => vec![
-                vec![None, None, None, None, None, None, None, None],
-                vec![None, None, None, None],
-                vec![None, None],
-                vec![None],
+                vec![Matchup::default(); 4],
+                vec![Matchup::default(); 2],
+                vec![Matchup::default()],
             ],
         };
         Self {
@@ -164,6 +163,39 @@ impl Division {
 impl Default for Division {
     fn default() -> Self {
         Self::new("New Division", Vec::new(), None)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct Matchup {
+    pub team1: Option<usize>,
+    pub team2: Option<usize>,
+    pub team1_score: usize,
+    pub team2_score: usize,
+    pub winner: Option<usize>,
+}
+
+impl Matchup {
+    pub fn new(
+        team1: Option<usize>,
+        team2: Option<usize>,
+        team1_score: usize,
+        team2_score: usize,
+        winner: Option<usize>
+    ) -> Self {
+        Self {
+            team1,
+            team2,
+            team1_score,
+            team2_score,
+            winner,
+        }
+    }
+}
+
+impl Default for Matchup {
+    fn default() -> Self {
+        Self::new(None, None, 0, 0, None)
     }
 }
 

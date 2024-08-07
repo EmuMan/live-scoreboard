@@ -216,11 +216,7 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
 
     let team1_score_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
     let team1_score_label = gtk::Label::new(Some("Team 1 Score"));
-    let team1_score_entry = gtk::SpinButton::builder()
-        .adjustment(&gtk::Adjustment::new(0.0, 0.0, 100.0, 1.0, 1.0, 1.0))
-        .digits(0)
-        .numeric(true)
-        .build();
+    let team1_score_entry = util::make_spin_button(12, 12, 12, 12);
     team1_score_entry.set_value(round.team1_score as f64);
     team1_score_entry.connect_changed(clone!(
         #[strong] shared_state,
@@ -235,11 +231,7 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
 
     let team2_score_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
     let team2_score_label = gtk::Label::new(Some("Team 2 Score"));
-    let team2_score_entry = gtk::SpinButton::builder()
-        .adjustment(&gtk::Adjustment::new(0.0, 0.0, 100.0, 1.0, 1.0, 1.0))
-        .digits(0)
-        .numeric(true)
-        .build();
+    let team2_score_entry = util::make_spin_button(12, 12, 12, 12);
     team2_score_entry.set_value(round.team2_score as f64);
     team2_score_entry.connect_changed(clone!(
         #[strong] shared_state,

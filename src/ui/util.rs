@@ -29,6 +29,18 @@ pub fn make_entry(mtop: usize, mbot: usize, msta: usize, mend: usize) -> gtk::En
         .build()
 }
 
+pub fn make_spin_button(mtop: usize, mbot: usize, msta: usize, mend: usize) -> gtk::SpinButton {
+    gtk::SpinButton::builder()
+        .adjustment(&gtk::Adjustment::new(0.0, 0.0, 100.0, 1.0, 1.0, 1.0))
+        .digits(0)
+        .numeric(true)
+        .margin_top(mtop as i32)
+        .margin_bottom(mbot as i32)
+        .margin_start(msta as i32)
+        .margin_end(mend as i32)
+        .build()
+}
+
 pub fn make_box(orientation: gtk::Orientation, mtop: usize, mbot: usize, msta: usize, mend: usize) -> gtk::Box {
     gtk::Box::builder()
         .orientation(orientation)
