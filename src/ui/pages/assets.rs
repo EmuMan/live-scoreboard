@@ -73,7 +73,8 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 let index = selected_row.index() as usize;
                 let state = shared_state.lock().unwrap();
                 if let Some(asset) = state.assets.get(index) {
-                    let image = util::load_image(&asset.path, 200, 200);
+                    let absolute_path = crate::fs::from_web_path(&asset.path);
+                    let image = util::load_image(&absolute_path, 200, 200);
                     if let Some(child) = picture_container.first_child() {
                         picture_container.remove(&child);
                     }

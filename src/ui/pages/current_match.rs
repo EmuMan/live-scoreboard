@@ -109,7 +109,8 @@ fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
 
 fn get_team_icon(path: Option<&str>) -> gtk::Image {
     if let Some(path) = path {
-        util::load_image(path, 200, 200)
+        let path = crate::fs::from_web_path(path);
+        util::load_image(&path, 200, 200)
     } else {
         gtk::Image::from_icon_name("image-missing")
     }

@@ -17,6 +17,7 @@
     --team2-color: #C80013;
 
     --animation-speed: 1;
+    --animation-delay: 2s;
 
     /* Overwatch Official League Branding Colors */
     --ow-contenders-green: #8cba11;
@@ -43,14 +44,13 @@
 }
 
 * {
-    /* Visible = logo extends outside of the div */
-    /* Hidden = logo is clipped to the div */
+    /* visible = logo extends outside of the div */
+    /* hidden = logo is clipped to the div */
     overflow: hidden;
 }
 
 body {
     margin: 0;
-    background-color: var(--ow-league-dark-grey);
     overflow: hidden;
 }
 
@@ -95,14 +95,14 @@ body {
 
 div.left {
     left: var(--team-start-offset);
-    animation: calc(1s / var(--animation-speed)) slide-in-left calc(1s / var(--animation-speed)) forwards;
+    animation: calc(1s / var(--animation-speed)) slide-in-left var(--animation-delay) forwards;
     border-right: 10px solid var(--team1-color);
     justify-content: right;
 }
 
 div.right {
     right: var(--team-start-offset);
-    animation: calc(1s / var(--animation-speed)) slide-in-right calc(1s / var(--animation-speed)) forwards;
+    animation: calc(1s / var(--animation-speed)) slide-in-right var(--animation-delay) forwards;
     border-left: 10px solid var(--team2-color);
     justify-content: left;
 }
@@ -129,13 +129,13 @@ div.right {
     font-size: var(--team-score-font-size);
     width: 4rem;
     text-align: center;
-    animation: calc(1s / var(--animation-speed)) fade-in calc(2s / var(--animation-speed)) forwards;
+    animation: calc(1s / var(--animation-speed)) fade-in calc(var(--animation-delay) + 1s / var(--animation-speed)) forwards;
 }
 
 .team-logo {
     width: var(--team-logo-width);
     height: 100%;
-    animation: calc(1s / var(--animation-speed)) fade-in calc(2.3s / var(--animation-speed)) forwards;
+    animation: calc(1s / var(--animation-speed)) fade-in calc(var(--animation-delay) + 1.3s / var(--animation-speed)) forwards;
     display: flex;
     justify-content: center;
 }
@@ -158,10 +158,10 @@ div.right .team-logo {
     padding-left: 2rem;
     padding-right: 2rem;
     font-size: var(--team-name-font-size);
-    animation: calc(1s / var(--animation-speed)) fade-in calc(2.6s / var(--animation-speed)) forwards;
+    animation: calc(1s / var(--animation-speed)) fade-in calc(var(--animation-delay) + 1.6s / var(--animation-speed)) forwards;
 }
 
 .team-sr {
     font-size: var(--team-sr-font-size);
-    animation: calc(1s / var(--animation-speed)) fade-in calc(3s / var(--animation-speed)) forwards;
+    animation: calc(1s / var(--animation-speed)) fade-in calc(var(--animation-delay) + 2s / var(--animation-speed)) forwards;
 }

@@ -196,7 +196,10 @@ fn make_team_row(team: &models::Team) -> gtk::Box {
 
     let team_label = util::make_label(&team.name, 12, 12, 12, 12);
     let team_icon = match &team.icon {
-        Some(icon) => util::load_image(icon, 30, 30),
+        Some(path) => {
+            let path = crate::fs::from_web_path(path);
+            util::load_image(&path, 30, 30)
+        },
         None => gtk::Image::from_icon_name("image-missing"), // TODO: Implement missing icon
     };
 

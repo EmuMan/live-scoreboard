@@ -102,8 +102,8 @@ fn populate_context(context: &mut tera::Context, state: &crate::AppState) {
     context.insert("bracket_visibilities", &state.bracket_visibilities());
     context.insert("team1", &state.current_match.team1.map(|i| &state.division.teams[i]));
     context.insert("team2", &state.current_match.team2.map(|i| &state.division.teams[i]));
-    context.insert("team1_score", &state.current_match.score1);
-    context.insert("team2_score", &state.current_match.score2);
+    context.insert("team1_score", &state.current_match.team1_score());
+    context.insert("team2_score", &state.current_match.team2_score());
 }
 
 fn get_content_type(path: &str) -> &'static str {

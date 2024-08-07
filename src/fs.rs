@@ -87,3 +87,24 @@ pub fn get_filters(filter_info: &Vec<(String, Vec<String>)>) -> gio::ListStore {
     }
     filters
 }
+
+pub fn to_web_path(path: &std::path::Path) -> Option<String> {
+    let current_dir = std::env::current_dir().unwrap();
+    path.strip_prefix(current_dir).ok()
+        .map(|p| std::path::Path::new(".").join(p))
+        .map(|p| p.to_string_lossy().to_string())
+        .map(|p| p.replace("\\", "/"))
+        .map(|p| p.trim_start_matches(".").to_string())
+}
+
+pub fn from_web_path(path: &str) -> String {
+    let path = path.replace("\\", "/");
+    if path.starts_with("/assets") {
+        let current_dir = std::env::current_dir().unwrap();
+        let path = path.trim_start_matches("/");
+        let path = std::path::Path::new(path);
+        current_dir.join(path).to_string_lossy().to_string()
+    } else {
+        path.into()
+    }
+}

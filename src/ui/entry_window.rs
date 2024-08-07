@@ -131,7 +131,7 @@ pub fn open_entry_window(
                             move |result| {
                                 result.ok()
                                     .and_then(|file| file.path())
-                                    .and_then(|path| Some(path.to_string_lossy().to_string()))
+                                    .and_then(|path| crate::fs::to_web_path(&path))
                                     .map(|path| file_label.set_label(path.as_str()));
                             }
                         ));

@@ -12,7 +12,9 @@
         <!-- <span class="team-sr">4.3</span> -->
         <span class="team-name">{{ team1.name }}</span>
         <span class="team-logo">
-            <img src="/assets/logos/alt_logo.png" alt="Team 1 Logo">
+            {% if team1.icon %}
+                <img src="{{ team1.icon }}" alt="Team 1 Logo">
+            {% endif %}
         </span>
         <span class="team-score">{{ team1_score }}</span>
     </div>
@@ -20,7 +22,9 @@
     <div class="team-banner right">
         <span class="team-score">{{ team2_score }}</span>
         <span class="team-logo">
-            <img src="/assets/logos/alt_logo.png" alt="Team 2 Logo">
+            {% if team2.icon %}
+                <img src="{{ team2.icon }}" alt="Team 2 Logo">
+            {% endif %}
         </span>
         <span class="team-name">{{ team2.name }}</span>
         <!-- <span class="team-sr">4.3</span> -->

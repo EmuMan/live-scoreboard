@@ -172,9 +172,6 @@ pub struct Match {
     pub rounds: Vec<Round>,
     pub team1: Option<usize>,
     pub team2: Option<usize>,
-    pub score1: usize,
-    pub score2: usize,
-    pub winner: Option<usize>,
 }
 
 impl Match {
@@ -182,24 +179,26 @@ impl Match {
         rounds: Vec<Round>,
         team1: Option<usize>,
         team2: Option<usize>,
-        score1: usize,
-        score2: usize,
-        winner: Option<usize>
     ) -> Self {
         Self {
             rounds,
             team1,
             team2,
-            score1,
-            score2,
-            winner,
         }
+    }
+
+    pub fn team1_score(&self) -> usize {
+        self.rounds.iter().filter(|round| round.team1_score > round.team2_score).count()
+    }
+
+    pub fn team2_score(&self) -> usize {
+        self.rounds.iter().filter(|round| round.team2_score > round.team1_score).count()
     }
 }
 
 impl Default for Match {
     fn default() -> Self {
-        Self::new(Vec::new(), None, None, 0, 0, None)
+        Self::new(Vec::new(), None, None)
     }
 }
 
