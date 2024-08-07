@@ -4,12 +4,12 @@ use axum::{
 use std::{fs, sync::Arc};
 use super::{error::AppError, WebserverState};
 
-
 pub fn create_router(state: Arc<WebserverState>) -> Router {
     Router::new()
         .route("/bracket", get(render_bracket))
         .route("/assets/*path", get(serve_asset))
         .route("/team/:team", get(render_team))
+        .route("/scoreboard", get(render_scoreboard))
         .layer(Extension(state))
 }
 
@@ -19,18 +19,8 @@ pub async fn render_bracket(
     // Lock the context to safely access it
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
-
-    let assets_hashmap = state.assets_hashmap();
-    let team_names = state.team_names();
-    let first_round = state.bracket_first_round();
-    let visibilities = state.bracket_visibilities();
-
-    context.insert("assets", &assets_hashmap);
-    context.insert("teams", &team_names);
-    context.insert("num_teams", &team_names.len());
-    context.insert("bracket", &state.division.bracket);
-    context.insert("first_round", &first_round);
-    context.insert("visibilities", &visibilities);
+    
+    populate_context(&mut context, &state);
 
     match webserver_state.tera.render("bracket.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
@@ -48,6 +38,8 @@ pub async fn render_team(
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
 
+    populate_context(&mut context, &state);
+
     let team = state
         .division
         .teams
@@ -55,12 +47,26 @@ pub async fn render_team(
         .find(|t| t.name == team)
         .ok_or(AppError::NotFound)?;
 
-    let players_display_list = team.player_info();
-
-    context.insert("team", &team.name);
-    context.insert("players", &players_display_list);
+    context.insert("team", team);
 
     match webserver_state.tera.render("team.html", &context) {
+        Ok(rendered) => Ok(Html(rendered)),
+        Err(e) => {
+            eprintln!("Failed to render template: {}", e);
+            Err(AppError::TemplateError)
+        }
+    }
+}
+
+pub async fn render_scoreboard(
+    Extension(webserver_state): Extension<Arc<WebserverState>>,
+) -> Result<Html<String>, AppError> {
+    let mut context = webserver_state.context.lock().unwrap();
+    let state = webserver_state.shared_state.lock().unwrap();
+
+    populate_context(&mut context, &state);
+    
+    match webserver_state.tera.render("scoreboard.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
             eprintln!("Failed to render template: {}", e);
@@ -85,6 +91,19 @@ pub async fn serve_asset(Path(path): Path<String>) -> Result<Response, AppError>
     let mut response = Response::new(body);
     response.headers_mut().insert("Content-Type", content_type.parse().unwrap());
     Ok(response)
+}
+
+fn populate_context(context: &mut tera::Context, state: &crate::AppState) {
+    context.insert("assets", &state.assets_hashmap());
+    context.insert("teams", &state.division.teams);
+    context.insert("team_count", &state.team_names().len());
+    context.insert("bracket", &state.division.bracket);
+    context.insert("bracket_round_count", &state.bracket_round_count());
+    context.insert("bracket_visibilities", &state.bracket_visibilities());
+    context.insert("team1", &state.current_match.team1.map(|i| &state.division.teams[i]));
+    context.insert("team2", &state.current_match.team2.map(|i| &state.division.teams[i]));
+    context.insert("team1_score", &state.current_match.score1);
+    context.insert("team2_score", &state.current_match.score2);
 }
 
 fn get_content_type(path: &str) -> &'static str {

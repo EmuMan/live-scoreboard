@@ -1,22 +1,26 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Overview</title>
     <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
+
 <body>
     <h1>Team Overview</h1>
-    <p>{{ team }}</p>
+    <p>{{ team.name }}</p>
     <div id="players" class="players">
-        {% for player in players %}
+        {% for player in team.players %}
             <div class="player">
-                <h2>{{ player[0] }}</h2>
-                <p>{{ player[1] }}</p>
-                <p>{{ player[2] }}</p>
+                <h2>{{ player.name }}</h2>
+                <p>{{ player.role }}</p>
+                <p>{{ player.character }}</p>
             </div>
         {% endfor %}
     </div>
 </body>
+
 </html>

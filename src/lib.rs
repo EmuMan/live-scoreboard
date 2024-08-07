@@ -82,6 +82,10 @@ impl AppState {
         first_round
     }
 
+    pub fn bracket_round_count(&self) -> usize {
+        3 - self.bracket_first_round()
+    }
+
     pub fn correct_rounds_to_count(&mut self) {
         while self.settings.round_count < self.current_match.rounds.len() {
             self.current_match.rounds.pop();

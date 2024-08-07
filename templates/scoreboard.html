@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Scoreboard</title>
+    <link rel="stylesheet" type="text/css" href="/assets/css/scoreboard.css">
+</head>
+
+<body>
+    <div class="team-banner left">
+        <!-- <span class="team-sr">4.3</span> -->
+        <span class="team-name">{{ team1.name }}</span>
+        <span class="team-logo">
+            <img src="/assets/logos/alt_logo.png" alt="Team 1 Logo">
+        </span>
+        <span class="team-score">{{ team1_score }}</span>
+    </div>
+
+    <div class="team-banner right">
+        <span class="team-score">{{ team2_score }}</span>
+        <span class="team-logo">
+            <img src="/assets/logos/alt_logo.png" alt="Team 2 Logo">
+        </span>
+        <span class="team-name">{{ team2.name }}</span>
+        <!-- <span class="team-sr">4.3</span> -->
+    </div>
+</body>
+
+</html>
