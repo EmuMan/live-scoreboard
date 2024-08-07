@@ -59,24 +59,39 @@ fn set_teams(teams_container: &gtk::Box, shared_state: SharedState) {
 }
 
 fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
-    let state = shared_state.lock().unwrap();
+
+    //////////////////
+    // DECLARATIONS //
+    //////////////////
+
+    let team_names = shared_state.lock().unwrap().team_names();
+    let team_names_model = util::get_model_with_none(&team_names);
 
     let team_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
     let team_label = gtk::Label::new(Some(format!("Team {}", number).as_str()));
+    let team_dropdown = gtk::DropDown::new(Some(team_names_model), gtk::Expression::NONE);
     let team_logo_container = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
-    
-    let name_dropdown_model = util::get_model_with_none(&state.team_names());
-    let dropdown = gtk::DropDown::new(Some(name_dropdown_model), gtk::Expression::NONE);
+
+    ////////////////////
+    // INITIALIZATION //
+    ////////////////////
+
+    let state = shared_state.lock().unwrap();
+
     let team_index = if number == 1 { state.current_match.team1 } else { state.current_match.team2 };
     if let Some(team_index) = team_index {
-        dropdown.set_selected(team_index as u32 + 1);
+        team_dropdown.set_selected(team_index as u32 + 1);
         let team_logo_path = &state.division.teams.get(team_index).unwrap().icon;
         team_logo_container.append(&get_team_icon(team_logo_path.as_deref()));
     } else {
-        dropdown.set_selected(0);
+        team_dropdown.set_selected(0);
     }
 
-    dropdown.connect_selected_notify(clone!(
+    /////////////////
+    // CONNECTIONS //
+    /////////////////
+
+    team_dropdown.connect_selected_notify(clone!(
         #[strong] shared_state,
         #[weak] team_logo_container,
         move |dropdown| {
@@ -100,8 +115,12 @@ fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
         }
     ));
 
+    /////////////////
+    // ARRANGEMENT //
+    /////////////////
+
     team_box.append(&team_label);
-    team_box.append(&dropdown);
+    team_box.append(&team_dropdown);
     team_box.append(&team_logo_container);
     
     team_box
@@ -124,16 +143,45 @@ fn set_map_progress_box(shared_state: SharedState, map_progress_box: gtk::Box) {
 }
 
 fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Round, round_index: usize) -> gtk::Box {
+
+    //////////////////
+    // DECLARATIONS //
+    //////////////////
+    
+    let gamemode_names = state.settings.gamemodes.iter().map(|g| g.name.clone()).collect();
+    let gamemode_index = util::index_of_or_none(&gamemode_names, &round.gamemode);
+    let gamemode = gamemode_index.and_then(|index| state.settings.gamemodes.get(index));
+    let gamemode_model = util::get_model_with_none(&gamemode_names);
+    
+    let map_names = gamemode
+        .and_then(|gamemode| Some(gamemode.maps.iter().map(|m| m.name.clone()).collect()))
+        .unwrap_or(Vec::new());
+    let map_model = util::get_model_with_none(&map_names);
+
     let map_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
 
     let map_info_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
-
     let gamemode_label = gtk::Label::new(Some("Gamemode"));
-    let gamemode_names = state.settings.gamemodes.iter().map(|g| g.name.clone()).collect();
-    let gamemode_model = util::get_model_with_none(&gamemode_names);
     let gamemode_dropdown = gtk::DropDown::new(Some(gamemode_model), gtk::Expression::NONE);
-    let gamemode_index = util::index_of_or_none(&gamemode_names, &round.gamemode);
-    let gamemode = gamemode_index.and_then(|index| state.settings.gamemodes.get(index));
+    let map_label = gtk::Label::new(Some("Map"));
+    let map_dropdown = gtk::DropDown::new(Some(map_model), gtk::Expression::NONE);
+
+    let scores_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let team1_score_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let team1_score_label = gtk::Label::new(Some("Team 1 Score"));
+    let team1_score_entry = util::make_spin_button(12, 12, 12, 12);
+    let team2_score_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let team2_score_label = gtk::Label::new(Some("Team 2 Score"));
+    let team2_score_entry = util::make_spin_button(12, 12, 12, 12);
+
+    let completed_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
+    let completed_label = gtk::Label::new(Some("Completed "));
+    let completed_switch = gtk::Switch::builder().build();
+
+    ////////////////////
+    // INITIALIZATION //
+    ////////////////////
+    
     if let Some(index) = gamemode_index {
         gamemode_dropdown.set_selected(index as u32 + 1);
     } else {
@@ -141,18 +189,20 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
         // TODO: set gamemode in app state to none
     }
 
-    let map_label = gtk::Label::new(Some("Map"));
-    let map_names = gamemode
-        .and_then(|gamemode| Some(gamemode.maps.iter().map(|m| m.name.clone()).collect()))
-        .unwrap_or(Vec::new());
-    let map_model = util::get_model_with_none(&map_names);
-    let map_dropdown = gtk::DropDown::new(Some(map_model), gtk::Expression::NONE);
     if let Some(index) = util::index_of_or_none(&map_names, &round.map) {
         map_dropdown.set_selected(index as u32 + 1);
     } else {
         map_dropdown.set_selected(0);
         // TODO: set map in app state to none
     }
+
+    team1_score_entry.set_value(round.team1_score as f64);
+    team2_score_entry.set_value(round.team2_score as f64);
+    completed_switch.set_state(round.completed);
+
+    /////////////////
+    // CONNECTIONS //
+    /////////////////
 
     gamemode_dropdown.connect_selected_notify(clone!(
         #[strong] shared_state,
@@ -207,17 +257,6 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
         }
     ));
 
-    map_info_box.append(&gamemode_label);
-    map_info_box.append(&gamemode_dropdown);
-    map_info_box.append(&map_label);
-    map_info_box.append(&map_dropdown);
-
-    let scores_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
-
-    let team1_score_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
-    let team1_score_label = gtk::Label::new(Some("Team 1 Score"));
-    let team1_score_entry = util::make_spin_button(12, 12, 12, 12);
-    team1_score_entry.set_value(round.team1_score as f64);
     team1_score_entry.connect_changed(clone!(
         #[strong] shared_state,
         move |entry| {
@@ -229,10 +268,6 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
         }
     ));
 
-    let team2_score_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
-    let team2_score_label = gtk::Label::new(Some("Team 2 Score"));
-    let team2_score_entry = util::make_spin_button(12, 12, 12, 12);
-    team2_score_entry.set_value(round.team2_score as f64);
     team2_score_entry.connect_changed(clone!(
         #[strong] shared_state,
         move |entry| {
@@ -244,9 +279,6 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
         }
     ));
 
-    let completed_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
-    let completed_label = gtk::Label::new(Some("Completed "));
-    let completed_switch = gtk::Switch::builder().active(round.completed).build();
     completed_switch.connect_state_set(clone!(
         #[strong] shared_state,
         move |_, switch_state| {
@@ -257,6 +289,15 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
             glib::signal::Propagation::Proceed
         }
     ));
+
+    /////////////////
+    // ARRANGEMENT //
+    /////////////////
+
+    map_info_box.append(&gamemode_label);
+    map_info_box.append(&gamemode_dropdown);
+    map_info_box.append(&map_label);
+    map_info_box.append(&map_dropdown);
 
     team1_score_box.append(&team1_score_label);
     team1_score_box.append(&team1_score_entry);
