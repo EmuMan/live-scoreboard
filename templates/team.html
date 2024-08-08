@@ -6,20 +6,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Overview</title>
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/team.css">
 </head>
 
 <body>
-    <h1>Team Overview</h1>
-    <p>{{ team.name }}</p>
-    <div id="players" class="players">
-        {% for player in team.players %}
-            <div class="player">
-                <h2>{{ player.name }}</h2>
-                <p>{{ player.role }}</p>
-                <p>{{ player.character }}</p>
+    <div class="container">
+        <div class="team-name">
+            <span>{{ team.name }}</span>
+        </div>
+        <div class="players">
+            <div class="player-row">
+                {% for player in team.players %}
+                    <div class="player-card">
+                        <div class="character">
+                            {% if character_icons[player.character] %}
+                                <img src="{{ character_icons[player.character] }}" alt="{{ player.character }}">
+                            {% endif %}
+                        </div>
+                        <div class="player-info">
+                            <span class="player-name">{{ player.name }}</span>
+                            <span class="player-role">
+                                {% if role_icons[player.role] %}
+                                    <img src="{{ role_icons[player.role] }}" alt="{{ player.role }}">
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% set player_count = (team.players | length) %}
+                    {% set halfway = (player_count / 2) | round(method="ceil") %}
+                    {% if player_count > 3 and loop.index == halfway %}
             </div>
-        {% endfor %}
+            <div class="player-row">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </body>
 

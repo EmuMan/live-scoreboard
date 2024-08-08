@@ -49,6 +49,14 @@ impl AppState {
         self.assets.iter().map(|asset| (asset.name.clone(), asset.path.clone())).collect()
     }
 
+    pub fn roles_hashmap(&self) -> std::collections::HashMap<String, Option<String>> {
+        self.settings.roles.iter().map(|role| (role.name.clone(), role.icon.clone())).collect()
+    }
+
+    pub fn characters_hashmap(&self) -> std::collections::HashMap<String, Option<String>> {
+        self.settings.characters.iter().map(|character| (character.name.clone(), character.icon.clone())).collect()
+    }
+
     pub fn bracket_stage_count(&self) -> usize {
         let mut stage_count: usize = 3;
         for stage in &self.division.bracket {

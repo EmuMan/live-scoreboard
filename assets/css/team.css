@@ -1,0 +1,160 @@
+:root {
+    --team-name-top-offset: 5rem;
+    --team-name-font-size: 8rem;
+    --team-name-color: white;
+
+    --player-card-width: 25rem;
+    --player-card-spacing: 1rem;
+
+    --character-height: 18rem;
+
+    --player-info-height: 4rem;
+    --player-info-background-color: #202224;
+
+    --role-container-width: 4rem;
+    --role-relative-size: 70%;
+    --role-background-color: #202224;
+
+    --player-name-font-size: 2.5rem;
+
+    /* Overwatch Official League Branding Colors */
+    --ow-contenders-green: #8cba11;
+    --ow-league-orange: #ff9c00;
+    --ow-league-dark-grey: #202224;
+
+    /* Overwatch Colorblind UI Colors */
+    --ow-colorblind-red: #C80013; /* Enemy Default */
+    --ow-colorblind-tawny: #D45800;
+    --ow-colorblind-orange: #D47900;
+    --ow-colorblind-gold: #FFD700;
+    --ow-colorblind-yellow: #FFFF00;
+    --ow-colorblind-lime-green: #CCFF00;
+    --ow-colorblind-green: #00AB84;
+    --ow-colorblind-neon-blue: #00FFFF;
+    --ow-colorblind-blue: #27AAE1; /* Friendly Default */
+    --ow-colorblind-purple: #800080;
+    --ow-colorblind-aqua: #523FFF;
+    --ow-colorblind-magenta: #FF00FF;
+    --ow-colorblind-pink: #FF6EC7;
+
+    /* Other Branded Colors */
+    --ow-website-blue: #00a5e2;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    src: url("/assets/fonts/Rajdhani/Rajdhani-Bold.ttf") format('TrueType');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    src: url("/assets/fonts/Rajdhani/Rajdhani-Regular.ttf") format('TrueType');
+    font-weight: normal;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    height: 100%;
+    width: 100%;
+}
+
+.team-name {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: var(--team-name-top-offset);
+}
+
+.team-name span {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: var(--team-name-font-size);
+    font-weight: bold;
+    color: var(--team-name-color);
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.players {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 70%;
+}
+
+.player-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: var(--player-card-width);
+    color: white;
+    font-family: 'Rajdhani', sans-serif;
+    text-align: center;
+    margin: var(--player-card-spacing);
+}
+
+.character {
+    width: 100%;
+    height: var(--character-height);
+}
+
+.character img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+    width: 100%;
+    height: var(--player-info-height);
+    background-color: var(--player-info-background-color);
+}
+
+.player-name {
+    margin: auto;
+    font-size: var(--player-name-font-size);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.player-role {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--role-container-width);
+    height: var(--player-info-height);
+    background-color: var(--role-background-color);
+}
+
+.player-role img {
+    width: var(--role-relative-size);
+    height: var(--role-relative-size);
+    object-fit: cover;
+}

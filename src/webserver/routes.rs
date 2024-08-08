@@ -95,6 +95,8 @@ pub async fn serve_asset(Path(path): Path<String>) -> Result<Response, AppError>
 
 fn populate_context(context: &mut tera::Context, state: &crate::AppState) {
     context.insert("assets", &state.assets_hashmap());
+    context.insert("role_icons", &state.roles_hashmap());
+    context.insert("character_icons", &state.characters_hashmap());
     context.insert("teams", &state.division.teams);
     context.insert("team_count", &state.team_names().len());
     context.insert("bracket", &state.division.bracket);
