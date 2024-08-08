@@ -121,11 +121,11 @@ div.right {
 
 .team-score, .team-logo, .team-name, .team-sr {
     font-family: 'Rajdhani', sans-serif;
+    font-weight: bold;
     opacity: 0;
 }
 
 .team-score {
-    font-weight: bold;
     font-size: var(--team-score-font-size);
     width: 4rem;
     text-align: center;
@@ -158,6 +158,7 @@ div.right .team-logo {
     padding-left: 2rem;
     padding-right: 2rem;
     font-size: var(--team-name-font-size);
+    text-transform: uppercase;
     animation: calc(1s / var(--animation-speed)) fade-in calc(var(--animation-delay) + 1.6s / var(--animation-speed)) forwards;
 }
 

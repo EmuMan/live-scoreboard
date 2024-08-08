@@ -109,9 +109,10 @@ body {
 }
 
 .team .name {
-    font-size: var(--team-name-font-size);
     width: 100%;
     text-align: center;
+    font-size: var(--team-name-font-size);
+    text-transform: uppercase;
 }
 
 .team .score {
