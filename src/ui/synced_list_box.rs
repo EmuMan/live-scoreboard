@@ -121,6 +121,7 @@ impl<T: Clone + 'static> SyncedListBox<T> {
             let mut state = self.shared_state.lock().unwrap();
             if let Some(mut_data) = (self.get_mut_data.lock().unwrap())(&mut state) {
                 mut_data.remove(row_index);
+                std::mem::drop(state);
                 self.list_box.remove(&selected_row);
                 return Some(row_index);
             }

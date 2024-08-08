@@ -17,13 +17,21 @@
                     <div class="matchup">
                     {% if bracket_visibilities[0][loop.index0] %}
                         <span class="header">QUARTERFINAL {{ loop.index }}</span>
+                        {% if matchup.team1 == matchup.winner %}
+                        <div class="team winner">
+                        {% else %}
                         <div class="team">
+                        {% endif %}
                             <span class="name">{{ teams[matchup.team1].name }}</span>
                             <div class="score">
                                 <span>{{ matchup.team1_score }}</span>
                             </div>
                         </div>
+                        {% if matchup.team2 == matchup.winner %}
+                        <div class="team winner">
+                        {% else %}
                         <div class="team">
+                        {% endif %}
                             <span class="name">{{ teams[matchup.team2].name }}</span>
                             <div class="score">
                                 <span>{{ matchup.team2_score }}</span>
@@ -39,14 +47,22 @@
                 {% for matchup in bracket[1] %}
                     <div class="matchup">
                     {% if bracket_visibilities[1][loop.index0] %}
-                        <span class="header">SEMIFINAL {{ loop.index }}</span>
+                        <span class="header">QUARTERFINAL {{ loop.index }}</span>
+                        {% if matchup.team1 == matchup.winner %}
+                        <div class="team winner">
+                        {% else %}
                         <div class="team">
+                        {% endif %}
                             <span class="name">{{ teams[matchup.team1].name }}</span>
                             <div class="score">
                                 <span>{{ matchup.team1_score }}</span>
                             </div>
                         </div>
+                        {% if matchup.team2 == matchup.winner %}
+                        <div class="team winner">
+                        {% else %}
                         <div class="team">
+                        {% endif %}
                             <span class="name">{{ teams[matchup.team2].name }}</span>
                             <div class="score">
                                 <span>{{ matchup.team2_score }}</span>
@@ -62,14 +78,22 @@
                 {% for matchup in bracket[2] %}
                     <div class="matchup">
                     {% if bracket_visibilities[2][loop.index0] %}
-                        <span class="header">FINAL</span>
+                        <span class="header">QUARTERFINAL {{ loop.index }}</span>
+                        {% if matchup.team1 == matchup.winner %}
+                        <div class="team winner">
+                        {% else %}
                         <div class="team">
+                        {% endif %}
                             <span class="name">{{ teams[matchup.team1].name }}</span>
                             <div class="score">
                                 <span>{{ matchup.team1_score }}</span>
                             </div>
                         </div>
+                        {% if matchup.team2 == matchup.winner %}
+                        <div class="team winner">
+                        {% else %}
                         <div class="team">
+                        {% endif %}
                             <span class="name">{{ teams[matchup.team2].name }}</span>
                             <div class="score">
                                 <span>{{ matchup.team2_score }}</span>

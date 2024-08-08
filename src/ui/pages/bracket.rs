@@ -90,13 +90,13 @@ fn make_matchup(shared_state: SharedState, col: u32, row: u32) -> gtk::Box {
 
     let team1_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
     let team1_dropdown = gtk::DropDown::new(Some(team_names_model.clone()), gtk::Expression::NONE);
-    let team1_score = util::make_spin_button(12, 12, 12, 12);
+    let team1_score = util::make_spin_button(0, 0, 12, 12);
 
     let team2_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
     let team2_dropdown = gtk::DropDown::new(Some(team_names_model.clone()), gtk::Expression::NONE);
-    let team2_score = util::make_spin_button(12, 12, 12, 12);
+    let team2_score = util::make_spin_button(0, 0, 12, 12);
 
-    let winner_label = util::make_label("Winner:", 12, 12, 12, 12);
+    let winner_label = util::make_label("Winner:", 6, 12, 12, 12);
     let winner_dropdown = gtk::DropDown::new(Some(team_names_model), gtk::Expression::NONE);
 
     ////////////////////
@@ -124,6 +124,11 @@ fn make_matchup(shared_state: SharedState, col: u32, row: u32) -> gtk::Box {
         team2_score.set_value(matchup.as_ref()
             .map(|m| m.team2_score as f64)
             .unwrap_or(0.0));
+
+        winner_dropdown.set_selected(matchup.as_ref()
+            .and_then(|m| m.winner)
+            .map(|t| t + 1)
+            .unwrap_or(0) as u32);
     }
 
     /////////////////
