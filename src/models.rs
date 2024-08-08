@@ -191,6 +191,10 @@ impl Matchup {
             winner,
         }
     }
+
+    pub fn is_filled(&self) -> bool {
+        self.team1.is_some() && self.team2.is_some()
+    }
 }
 
 impl Default for Matchup {

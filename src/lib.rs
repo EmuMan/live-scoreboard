@@ -49,6 +49,29 @@ impl AppState {
         self.assets.iter().map(|asset| (asset.name.clone(), asset.path.clone())).collect()
     }
 
+    pub fn bracket_stage_count(&self) -> usize {
+        let mut stage_count: usize = 3;
+        for stage in &self.division.bracket {
+            if stage.iter().any(|matchup| matchup.is_filled()) {
+                break;
+            }
+            stage_count -= 1;
+        }
+        stage_count
+    }
+
+    pub fn bracket_visibilities(&self) -> Vec<Vec<bool>> {
+        let mut visibilities = Vec::new();
+        for stage in &self.division.bracket {
+            let mut stage_visibilities = Vec::new();
+            for matchup in stage {
+                stage_visibilities.push(matchup.is_filled());
+            }
+            visibilities.push(stage_visibilities);
+        }
+        visibilities
+    }
+
     pub fn correct_rounds_to_count(&mut self) {
         while self.settings.round_count < self.current_match.rounds.len() {
             self.current_match.rounds.pop();

@@ -6,69 +6,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bracket Scoreboard</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <script src="assets/js/bracket.js"></script>
+    <link rel="stylesheet" href="/assets/css/bracket.css">
 </head>
 
 <body>
-    <svg id="blines" class="blines"></svg>
-
     <div id="bracket" class="bracket">
-        {% if bracket_round_count >= 3 %}
-            <div class="bcolumn">
-                {% for visibility in bracket_visibilities[0] %}
-                    {% if visibility == 0 %}
-                        <div class="bteamcontainer"></div>
-                    {% elif visibility == 1 %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
-                    {% else %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[0][loop.index0]].name }}</span></div></div>
+        {% if bracket_stage_count >= 3 %}
+            <div class="stage">
+                {% for matchup in bracket[0] %}
+                    <div class="matchup">
+                    {% if bracket_visibilities[0][loop.index0] %}
+                        <span class="header">QUARTERFINAL {{ loop.index }}</span>
+                        <div class="team">
+                            <span class="name">{{ teams[matchup.team1].name }}</span>
+                            <div class="score">
+                                <span>{{ matchup.team1_score }}</span>
+                            </div>
+                        </div>
+                        <div class="team">
+                            <span class="name">{{ teams[matchup.team2].name }}</span>
+                            <div class="score">
+                                <span>{{ matchup.team2_score }}</span>
+                            </div>
+                        </div>
                     {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
-        {% if bracket_round_count >= 2 %}
-            <div class="bcolumn">
-                {% for visibility in bracket_visibilities[1] %}
-                    {% if visibility == 0 %}
-                        <div class="bteamcontainer"></div>
-                    {% elif visibility == 1 %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
-                    {% else %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[1][loop.index0]].name }}</span></div></div>
+        {% if bracket_stage_count >= 2 %}
+            <div class="stage">
+                {% for matchup in bracket[1] %}
+                    <div class="matchup">
+                    {% if bracket_visibilities[1][loop.index0] %}
+                        <span class="header">SEMIFINAL {{ loop.index }}</span>
+                        <div class="team">
+                            <span class="name">{{ teams[matchup.team1].name }}</span>
+                            <div class="score">
+                                <span>{{ matchup.team1_score }}</span>
+                            </div>
+                        </div>
+                        <div class="team">
+                            <span class="name">{{ teams[matchup.team2].name }}</span>
+                            <div class="score">
+                                <span>{{ matchup.team2_score }}</span>
+                            </div>
+                        </div>
                     {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
-        {% if bracket_round_count >= 1 %}
-            <div class="bcolumn">
-                {% for visibility in bracket_visibilities[2] %}
-                    {% if visibility == 0 %}
-                        <div class="bteamcontainer"></div>
-                    {% elif visibility == 1 %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
-                    {% else %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[2][loop.index0]].name }}</span></div></div>
+        {% if bracket_stage_count >= 1 %}
+            <div class="stage">
+                {% for matchup in bracket[2] %}
+                    <div class="matchup">
+                    {% if bracket_visibilities[2][loop.index0] %}
+                        <span class="header">FINAL</span>
+                        <div class="team">
+                            <span class="name">{{ teams[matchup.team1].name }}</span>
+                            <div class="score">
+                                <span>{{ matchup.team1_score }}</span>
+                            </div>
+                        </div>
+                        <div class="team">
+                            <span class="name">{{ teams[matchup.team2].name }}</span>
+                            <div class="score">
+                                <span>{{ matchup.team2_score }}</span>
+                            </div>
+                        </div>
                     {% endif %}
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% if bracket_round_count >= 0 %}
-            <div class="bcolumn">
-                {% for visibility in bracket_visibilities[3] %}
-                    {% if visibility == 0 %}
-                        <div class="bteamcontainer"></div>
-                    {% elif visibility == 1 %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">TBD</span></div></div>
-                    {% else %}
-                        <div class="bteamcontainer"><div class="bteam"><span class="team">{{ teams[bracket[3][loop.index0]].name }}</span></div></div>
-                    {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
     </div>
-
-    <div class="topleft"><img class="mainlogo" src="{{ assets['Main Logo'] }}"></div>
 </body>
 
 </html>

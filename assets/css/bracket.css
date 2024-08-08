@@ -1,0 +1,126 @@
+:root {
+    --matchup-width: 30rem;
+    --matchup-spacing: 1rem;
+
+    --header-font-size: 1.5rem;
+
+    --team-height: 3.5rem;
+    --team-spacing: 0.2rem;
+    --team-highlight-width: 0.2rem;
+
+    --team-name-font-size: 2rem;
+    --team-score-font-size: 3rem;
+    --team-score-width: 5rem;
+
+    --score-background-color: #000000;
+    --normal-background-color: #ffffff;
+    --normal-text-color: #FFD700;
+    --victor-background-color: #FFD700;
+    --victor-text-color: #00AB84;
+
+    /* Overwatch Official League Branding Colors */
+    --ow-contenders-green: #8cba11;
+    --ow-league-orange: #ff9c00;
+    --ow-league-dark-grey: #202224;
+
+    /* Overwatch Colorblind UI Colors */
+    --ow-colorblind-red: #C80013; /* Enemy Default */
+    --ow-colorblind-tawny: #D45800;
+    --ow-colorblind-orange: #D47900;
+    --ow-colorblind-gold: #FFD700;
+    --ow-colorblind-yellow: #FFFF00;
+    --ow-colorblind-lime-green: #CCFF00;
+    --ow-colorblind-green: #00AB84;
+    --ow-colorblind-neon-blue: #00FFFF;
+    --ow-colorblind-blue: #27AAE1; /* Friendly Default */
+    --ow-colorblind-purple: #800080;
+    --ow-colorblind-aqua: #523FFF;
+    --ow-colorblind-magenta: #FF00FF;
+    --ow-colorblind-pink: #FF6EC7;
+
+    /* Other Branded Colors */
+    --ow-website-blue: #00a5e2;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    width: 90vw;
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    src: url("/assets/fonts/Rajdhani/Rajdhani-Bold.ttf") format('TrueType');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    src: url("/assets/fonts/Rajdhani/Rajdhani-Regular.ttf") format('TrueType');
+    font-weight: normal;
+}
+
+.bracket {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+}
+
+.stage {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+}
+
+.matchup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: var(--matchup-width);
+    height: 100%;
+    margin-bottom: var(--matchup-spacing);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: bold;
+    color: var(--normal-text-color);
+}
+
+.header {
+    font-size: var(--header-font-size);
+}
+
+.team {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    width: 100%;
+    height: var(--team-height);
+    margin-top: var(--team-spacing);
+    margin-bottom: var(--team-spacing);
+    overflow: hidden;
+    background-color: var(--normal-background-color);
+    border-left: var(--team-highlight-width) solid var(--normal-text-color);
+}
+
+.team .name {
+    font-size: var(--team-name-font-size);
+    width: 100%;
+    text-align: center;
+}
+
+.team .score {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: var(--team-score-width);
+    height: 100%;
+    background-color: var(--score-background-color);
+    font-size: var(--team-score-font-size);
+}
