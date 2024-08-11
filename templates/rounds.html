@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rounds</title>
+    <link rel="stylesheet" href="/assets/css/rounds.css">
+</head>
+
+<body>
+    <div class="container">
+        <span class="header">MAP SET</span>
+        <div class="rounds">
+            {% for round in rounds %}
+                <div class="round">
+                    <div class="top-half">
+                        {% if round.completed %}
+                            {% if team1_score > team2_score %}
+                                <span class="team-name">{{ team1.name }}</span>
+                                <span class="gamemode-icon">
+                                    {% if round.gamemode and gamemode_icons[round.gamemode] %}
+                                        <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                    {% endif %}
+                                </span>
+                                <span class="score">
+                                    <strong>{{ round.team1_score }}</strong> - {{ round.team2_score }}
+                                </span>
+                            {% elif team2_score > team1_score %}
+                                <span class="team-name">{{ team2.name }}</span>
+                                <span class="gamemode-icon">
+                                    {% if round.gamemode and gamemode_icons[round.gamemode] %}
+                                        <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                    {% endif %}
+                                </span>
+                                <span class="score">
+                                    {{ round.team1_score }} - <strong>{{ round.team2_score }}</strong>
+                                </span>
+                            {% else %}
+                                <span class="team-name">DRAW</span>
+                                <span class="gamemode-icon">
+                                    {% if round.gamemode and gamemode_icons[round.gamemode] %}
+                                        <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                    {% endif %}
+                                </span>
+                                <span class="score">
+                                    {{ round.team1_score }} - {{ round.team2_score }}
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="gamemode-icon">
+                                {% if round.gamemode and gamemode_icons[round.gamemode] %}
+                                    <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="bottom-half">
+                        {% if round.map %}
+                            <span class="map-name">{{ round.map }}</span>
+                        {% else %}
+                            <span class="map-name">TBA</span>
+                        {% endif %}
+                        {% if round.gamemode %}
+                            <span class="gamemode-name">{{ round.gamemode }}</span>
+                        {% else %}
+                            <span class="gamemode-name">TBA</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>

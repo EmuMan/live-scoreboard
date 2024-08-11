@@ -57,6 +57,10 @@ impl AppState {
         self.settings.characters.iter().map(|character| (character.name.clone(), character.icon.clone())).collect()
     }
 
+    pub fn gamemodes_hashmap(&self) -> std::collections::HashMap<String, Option<String>> {
+        self.settings.gamemodes.iter().map(|gamemode| (gamemode.name.clone(), gamemode.icon.clone())).collect()
+    }
+
     pub fn bracket_stage_count(&self) -> usize {
         let mut stage_count: usize = 3;
         for stage in &self.division.bracket {

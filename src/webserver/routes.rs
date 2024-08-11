@@ -10,6 +10,7 @@ pub fn create_router(state: Arc<WebserverState>) -> Router {
         .route("/assets/*path", get(serve_asset))
         .route("/team/:team", get(render_team))
         .route("/scoreboard", get(render_scoreboard))
+        .route("/rounds", get(render_rounds))
         .layer(Extension(state))
 }
 
@@ -75,6 +76,23 @@ pub async fn render_scoreboard(
     }
 }
 
+pub async fn render_rounds(
+    Extension(webserver_state): Extension<Arc<WebserverState>>,
+) -> Result<Html<String>, AppError> {
+    let mut context = webserver_state.context.lock().unwrap();
+    let state = webserver_state.shared_state.lock().unwrap();
+
+    populate_context(&mut context, &state);
+
+    match webserver_state.tera.render("rounds.html", &context) {
+        Ok(rendered) => Ok(Html(rendered)),
+        Err(e) => {
+            eprintln!("Failed to render template: {}", e);
+            Err(AppError::TemplateError)
+        }
+    }
+}
+
 pub async fn serve_asset(Path(path): Path<String>) -> Result<Response, AppError> {
     if path.contains("..") {
         return Err(AppError::NotFound);
@@ -97,6 +115,7 @@ fn populate_context(context: &mut tera::Context, state: &crate::AppState) {
     context.insert("assets", &state.assets_hashmap());
     context.insert("role_icons", &state.roles_hashmap());
     context.insert("character_icons", &state.characters_hashmap());
+    context.insert("gamemode_icons", &state.gamemodes_hashmap());
     context.insert("teams", &state.division.teams);
     context.insert("team_count", &state.team_names().len());
     context.insert("bracket", &state.division.bracket);
@@ -106,6 +125,7 @@ fn populate_context(context: &mut tera::Context, state: &crate::AppState) {
     context.insert("team2", &state.current_match.team2.map(|i| &state.division.teams[i]));
     context.insert("team1_score", &state.current_match.team1_score());
     context.insert("team2_score", &state.current_match.team2_score());
+    context.insert("rounds", &state.current_match.rounds);
 }
 
 fn get_content_type(path: &str) -> &'static str {

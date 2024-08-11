@@ -4,7 +4,7 @@
         "gamemodes": [
             {
                 "name": "Control",
-                "icon": null,
+                "icon": "/assets/images/gamemodes/control.png",
                 "maps": [
                     {
                         "name": "Antarctic Peninsula",
@@ -38,7 +38,7 @@
             },
             {
                 "name": "Escort",
-                "icon": null,
+                "icon": "/assets/images/gamemodes/escort.png",
                 "maps": [
                     {
                         "name": "Circuit Royale",
@@ -76,7 +76,7 @@
             },
             {
                 "name": "Hybrid",
-                "icon": null,
+                "icon": "/assets/images/gamemodes/hybrid.png",
                 "maps": [
                     {
                         "name": "Blizzard World",
@@ -110,7 +110,7 @@
             },
             {
                 "name": "Flashpoint",
-                "icon": null,
+                "icon": "/assets/images/gamemodes/flashpoint.png",
                 "maps": [
                     {
                         "name": "New Junk City",
@@ -124,7 +124,7 @@
             },
             {
                 "name": "Push",
-                "icon": null,
+                "icon": "/assets/images/gamemodes/push.png",
                 "maps": [
                     {
                         "name": "Colosseo",
