@@ -11,7 +11,9 @@
     --round-margin: 0.25rem;
 
     --round-top-half-height: 25rem;
-    --round-top-half-background-color: #aaaaaa;
+    --round-top-half-background-neutral: #aaaaaa;
+    --round-top-half-background-team-1: #8cba11;
+    --round-top-half-background-team-2: #ff9c00;
 
     --team-name-font-size: 2rem;
     --team-name-vertical-spacing: 0.5rem;
@@ -116,14 +118,25 @@ body {
     align-items: center;
     width: 100%;
     height: var(--round-top-half-height);
-    background-color: var(--round-top-half-background-color);
+}
 
+.background-neutral {
+    background-color: var(--round-top-half-background-neutral);
+}
+
+.background-team-1 {
+    background-color: var(--round-top-half-background-team-1);
+}
+
+.background-team-2 {
+    background-color: var(--round-top-half-background-team-2);
 }
 
 .team-name {
     font-size: var(--team-name-font-size);
     font-weight: bold;
     text-transform: uppercase;
+    text-align: center;
     margin-top: var(--team-name-vertical-spacing);
     margin-bottom: var(--team-name-vertical-spacing);
 }
@@ -136,7 +149,7 @@ body {
 }
 
 .gamemode-icon img {
-    width: var(--gamemode-image-size);
+    /* width: var(--gamemode-image-size); */
     height: var(--gamemode-image-size);
 }
 

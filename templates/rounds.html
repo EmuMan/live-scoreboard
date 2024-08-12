@@ -15,9 +15,9 @@
         <div class="rounds">
             {% for round in rounds %}
                 <div class="round">
-                    <div class="top-half">
-                        {% if round.completed %}
-                            {% if team1_score > team2_score %}
+                    {% if round.completed %}
+                        {% if round.team1_score > round.team2_score %}
+                            <div class="top-half background-team-1">
                                 <span class="team-name">{{ team1.name }}</span>
                                 <span class="gamemode-icon">
                                     {% if round.gamemode and gamemode_icons[round.gamemode] %}
@@ -27,7 +27,9 @@
                                 <span class="score">
                                     <strong>{{ round.team1_score }}</strong> - {{ round.team2_score }}
                                 </span>
-                            {% elif team2_score > team1_score %}
+                            </div>
+                        {% elif round.team2_score > round.team1_score %}
+                            <div class="top-half background-team-2">
                                 <span class="team-name">{{ team2.name }}</span>
                                 <span class="gamemode-icon">
                                     {% if round.gamemode and gamemode_icons[round.gamemode] %}
@@ -37,7 +39,9 @@
                                 <span class="score">
                                     {{ round.team1_score }} - <strong>{{ round.team2_score }}</strong>
                                 </span>
-                            {% else %}
+                            </div>
+                        {% else %}
+                            <div class="top-half background-neutral">
                                 <span class="team-name">DRAW</span>
                                 <span class="gamemode-icon">
                                     {% if round.gamemode and gamemode_icons[round.gamemode] %}
@@ -47,15 +51,17 @@
                                 <span class="score">
                                     {{ round.team1_score }} - {{ round.team2_score }}
                                 </span>
-                            {% endif %}
-                        {% else %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="top-half background-neutral">
                             <span class="gamemode-icon">
                                 {% if round.gamemode and gamemode_icons[round.gamemode] %}
                                     <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
                                 {% endif %}
                             </span>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                     <div class="bottom-half">
                         {% if round.map %}
                             <span class="map-name">{{ round.map }}</span>
