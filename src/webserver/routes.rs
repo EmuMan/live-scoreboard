@@ -33,7 +33,7 @@ pub async fn render_bracket(
 }
 
 pub async fn render_team(
-    Path(team): Path<String>,
+    Path(team_number): Path<usize>,
     Extension(webserver_state): Extension<Arc<WebserverState>>,
 ) -> Result<Html<String>, AppError> {
     let mut context = webserver_state.context.lock().unwrap();
@@ -41,11 +41,14 @@ pub async fn render_team(
 
     populate_context(&mut context, &state);
 
-    let team = state
-        .division
-        .teams
-        .iter()
-        .find(|t| t.name == team)
+    let team_index = if team_number == 1 {
+        state.current_match.team1
+    } else {
+        state.current_match.team2
+    };
+    
+    let team = team_index
+        .and_then(|index| state.division.teams.get(index))
         .ok_or(AppError::NotFound)?;
 
     context.insert("team", team);
