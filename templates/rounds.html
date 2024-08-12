@@ -20,8 +20,8 @@
                             <div class="top-half background-team-1">
                                 <span class="team-name">{{ team1.name }}</span>
                                 <span class="gamemode-icon">
-                                    {% if round.gamemode and gamemode_icons[round.gamemode] %}
-                                        <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                    {% if round.gamemode and round.gamemode in gamemode_icons %}
+                                        <img src="{{ gamemode_icons | get(key=round.gamemode) }}" alt="{{ round.gamemode }}">
                                     {% endif %}
                                 </span>
                                 <span class="score">
@@ -32,8 +32,8 @@
                             <div class="top-half background-team-2">
                                 <span class="team-name">{{ team2.name }}</span>
                                 <span class="gamemode-icon">
-                                    {% if round.gamemode and gamemode_icons[round.gamemode] %}
-                                        <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                    {% if round.gamemode and round.gamemode in gamemode_icons %}
+                                        <img src="{{ gamemode_icons | get(key=round.gamemode) }}" alt="{{ round.gamemode }}">
                                     {% endif %}
                                 </span>
                                 <span class="score">
@@ -44,8 +44,8 @@
                             <div class="top-half background-neutral">
                                 <span class="team-name">DRAW</span>
                                 <span class="gamemode-icon">
-                                    {% if round.gamemode and gamemode_icons[round.gamemode] %}
-                                        <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                    {% if round.gamemode and round.gamemode in gamemode_icons %}
+                                        <img src="{{ gamemode_icons | get(key=round.gamemode) }}" alt="{{ round.gamemode }}">
                                     {% endif %}
                                 </span>
                                 <span class="score">
@@ -56,8 +56,8 @@
                     {% else %}
                         <div class="top-half background-neutral">
                             <span class="gamemode-icon">
-                                {% if round.gamemode and gamemode_icons[round.gamemode] %}
-                                    <img src="{{ gamemode_icons[round.gamemode] }}" alt="{{ round.gamemode }}">
+                                {% if round.gamemode and round.gamemode in gamemode_icons %}
+                                    <img src="{{ gamemode_icons | get(key=round.gamemode) }}" alt="{{ round.gamemode }}">
                                 {% endif %}
                             </span>
                         </div>

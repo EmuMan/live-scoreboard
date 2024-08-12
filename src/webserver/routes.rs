@@ -4,6 +4,8 @@ use axum::{
 use std::{fs, sync::Arc};
 use super::{error::AppError, WebserverState};
 
+use std::error::Error;
+
 pub fn create_router(state: Arc<WebserverState>) -> Router {
     Router::new()
         .route("/bracket", get(render_bracket))
@@ -26,7 +28,7 @@ pub async fn render_bracket(
     match webserver_state.tera.render("bracket.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
-            eprintln!("Failed to render template: {}", e);
+            eprintln!("Failed to render template: {:?}", e.source());
             Err(AppError::TemplateError)
         }
     }
@@ -56,7 +58,7 @@ pub async fn render_team(
     match webserver_state.tera.render("team.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
-            eprintln!("Failed to render template: {}", e);
+            eprintln!("Failed to render template: {:?}", e.source());
             Err(AppError::TemplateError)
         }
     }
@@ -73,7 +75,7 @@ pub async fn render_scoreboard(
     match webserver_state.tera.render("scoreboard.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
-            eprintln!("Failed to render template: {}", e);
+            eprintln!("Failed to render template: {:?}", e.source());
             Err(AppError::TemplateError)
         }
     }
@@ -90,7 +92,7 @@ pub async fn render_rounds(
     match webserver_state.tera.render("rounds.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
-            eprintln!("Failed to render template: {}", e);
+            eprintln!("Failed to render template: {:?}", e.source());
             Err(AppError::TemplateError)
         }
     }
