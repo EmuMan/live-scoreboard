@@ -51,6 +51,16 @@ pub fn make_box(orientation: gtk::Orientation, mtop: usize, mbot: usize, msta: u
         .build()
 }
 
+pub fn make_frame(label: &str, mtop: usize, mbot: usize, msta: usize, mend: usize) -> gtk::Frame {
+    gtk::Frame::builder()
+        .label(label)
+        .margin_top(mtop as i32)
+        .margin_bottom(mbot as i32)
+        .margin_start(msta as i32)
+        .margin_end(mend as i32)
+        .build()
+}
+
 pub fn clear_box(box_: &gtk::Box) {
     let mut first_child = box_.first_child();
     while let Some(child) = first_child {

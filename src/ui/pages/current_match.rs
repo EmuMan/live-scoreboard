@@ -56,8 +56,8 @@ fn set_teams(teams_container: &gtk::Box, shared_state: SharedState) {
     // DECLARATIONS //
     //////////////////
 
-    let team_1_box = build_team_box(1, shared_state.clone());
-    let team_2_box = build_team_box(2, shared_state.clone());
+    let team_1_box = build_team_frame(1, shared_state.clone());
+    let team_2_box = build_team_frame(2, shared_state.clone());
 
     let swap_scoreboard_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
     let swap_scoreboard_label = util::make_label("Swap Scoreboard", 12, 12, 12, 12);
@@ -97,7 +97,7 @@ fn set_teams(teams_container: &gtk::Box, shared_state: SharedState) {
     teams_container.append(&team_2_box);
 }
 
-fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
+fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
 
     //////////////////
     // DECLARATIONS //
@@ -106,8 +106,8 @@ fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
     let team_names = shared_state.lock().unwrap().team_names();
     let team_names_model = util::get_model_with_none(&team_names);
 
+    let team_frame = util::make_frame(format!("Team {}", number).as_str(), 12, 12, 12, 12);
     let team_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
-    let team_label = gtk::Label::new(Some(format!("Team {}", number).as_str()));
     let team_dropdown = gtk::DropDown::new(Some(team_names_model), gtk::Expression::NONE);
     let team_logo_container = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
 
@@ -158,11 +158,12 @@ fn build_team_box(number: usize, shared_state: SharedState) -> gtk::Box {
     // ARRANGEMENT //
     /////////////////
 
-    team_box.append(&team_label);
     team_box.append(&team_dropdown);
     team_box.append(&team_logo_container);
+
+    team_frame.set_child(Some(&team_box));
     
-    team_box
+    team_frame
 }
 
 fn get_team_icon(path: Option<&str>) -> gtk::Image {
@@ -177,11 +178,11 @@ fn get_team_icon(path: Option<&str>) -> gtk::Image {
 fn set_round_progress_box(shared_state: SharedState, round_progress_box: gtk::Box) {
     let state = shared_state.lock().unwrap();
     for (i, round) in state.current_match.rounds.iter().enumerate() {
-        round_progress_box.append(&make_round_box(shared_state.clone(), &state, round, i));
+        round_progress_box.append(&make_round_frame(shared_state.clone(), &state, round, i));
     }
 }
 
-fn make_round_box(shared_state: SharedState, state: &AppState, round: &models::Round, round_index: usize) -> gtk::Box {
+fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models::Round, round_index: usize) -> gtk::Frame {
 
     //////////////////
     // DECLARATIONS //
@@ -197,6 +198,7 @@ fn make_round_box(shared_state: SharedState, state: &AppState, round: &models::R
         .unwrap_or(Vec::new());
     let map_model = util::get_model_with_none(&map_names);
 
+    let round_frame = util::make_frame(format!("Round {}", round_index + 1).as_str(), 12, 12, 12, 12);
     let round_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
 
     let round_info_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
@@ -352,6 +354,8 @@ fn make_round_box(shared_state: SharedState, state: &AppState, round: &models::R
     round_box.append(&round_info_box);
     round_box.append(&scores_box);
     round_box.append(&completed_box);
+
+    round_frame.set_child(Some(&round_box));
     
-    round_box
+    round_frame
 }

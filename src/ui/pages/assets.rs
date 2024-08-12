@@ -13,7 +13,9 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     let refresh_box = RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    let (assets_list_box, assets_list) = util::make_list(12, 12, 12, 12);
+    let assets_frame = util::make_frame("Assets", 12, 12, 12, 12);
+    let assets_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let (assets_list_box, assets_list_window) = util::make_list(12, 12, 12, 12);
     let assets_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
     let add_asset_button = util::make_button("Add", 12, 12, 0, 0);
     let remove_asset_button = util::make_button("Remove", 12, 12, 0, 0);
@@ -110,8 +112,12 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     assets_buttons_box.append(&move_asset_up_button);
     assets_buttons_box.append(&move_asset_down_button);
 
-    refresh_box.append(&assets_list);
-    refresh_box.append(&assets_buttons_box);
+    assets_box.append(&assets_list_window);
+    assets_box.append(&assets_buttons_box);
+
+    assets_frame.set_child(Some(&assets_box));
+
+    refresh_box.append(&assets_frame);
     refresh_box.append(&picture_container);
 
     refresh_box

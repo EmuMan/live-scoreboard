@@ -15,8 +15,9 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     let refresh_box = RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    let teams_label = util::make_label("Teams", 12, 12, 12, 12);
-    let (teams_list_box, teams_list) = util::make_list(12, 12, 12, 12);
+    let teams_frame = util::make_frame("Teams", 12, 12, 12, 12);
+    let teams_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let (teams_list_box, teams_list_window) = util::make_list(12, 12, 12, 12);
     let teams_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
     let add_team_button = util::make_button("Add", 12, 12, 0, 0);
     let remove_team_button = util::make_button("Remove", 12, 12, 0, 0);
@@ -24,7 +25,8 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     let move_team_up_button = util::make_button("Move Up", 12, 12, 0, 0);
     let move_team_down_button = util::make_button("Move Down", 12, 12, 0, 0);
 
-    let players_label = util::make_label("Players", 12, 12, 12, 12);
+    let players_frame = util::make_frame("Players", 12, 12, 12, 12);
+    let players_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
     let (players_list_box, players_list_window) = util::make_list(12, 12, 12, 12);
     let players_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
     let add_player_button = util::make_button("Add", 12, 12, 0, 0);
@@ -179,12 +181,17 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     players_buttons_box.append(&move_player_up_button);
     players_buttons_box.append(&move_player_down_button);
 
-    refresh_box.append(&teams_label);
-    refresh_box.append(&teams_list);
-    refresh_box.append(&teams_buttons_box);
-    refresh_box.append(&players_label);
-    refresh_box.append(&players_list_window);
-    refresh_box.append(&players_buttons_box);
+    teams_box.append(&teams_list_window);
+    teams_box.append(&teams_buttons_box);
+
+    players_box.append(&players_list_window);
+    players_box.append(&players_buttons_box);
+
+    teams_frame.set_child(Some(&teams_box));
+    players_frame.set_child(Some(&players_box));
+
+    refresh_box.append(&teams_frame);
+    refresh_box.append(&players_frame);
 
     refresh_box
 }

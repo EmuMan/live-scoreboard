@@ -23,7 +23,7 @@ pub fn build_ui(app: &Application) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title("Live Scoreboard")
-        .default_width(500)
+        .default_width(1500)
         .default_height(1000)
         .build();
 

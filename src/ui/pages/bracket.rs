@@ -48,7 +48,6 @@ pub fn init_bracket(bracket_box: &gtk::Box, shared_state: SharedState) {
     let column1 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
-    column1.append(&util::make_label("Quarterfinals", 12, 12, 12, 12));
     for i in 0..4 {
         let matchup = make_matchup(shared_state.clone(), 0, i);
         column1.append(&matchup);
@@ -58,7 +57,6 @@ pub fn init_bracket(bracket_box: &gtk::Box, shared_state: SharedState) {
     let column2 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
-    column2.append(&util::make_label("Semifinals", 12, 12, 12, 12));
     for i in 0..2 {
         let matchup = make_matchup(shared_state.clone(), 1, i);
         column2.append(&matchup);
@@ -68,7 +66,6 @@ pub fn init_bracket(bracket_box: &gtk::Box, shared_state: SharedState) {
     let column3 = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
-    column3.append(&util::make_label("Finals", 12, 12, 12, 12));
     let matchup = make_matchup(shared_state.clone(), 2, 0);
     column3.append(&matchup);
 
@@ -77,12 +74,21 @@ pub fn init_bracket(bracket_box: &gtk::Box, shared_state: SharedState) {
     bracket_box.append(&column3);
 }
 
-fn make_matchup(shared_state: SharedState, col: u32, row: u32) -> gtk::Box {
+fn make_matchup(shared_state: SharedState, col: u32, row: u32) -> gtk::Frame {
 
     //////////////////
     // DECLARATIONS //
     //////////////////
+    
+    let column_name = match col {
+        0 => "Quarterfinals",
+        1 => "Semifinals",
+        2 => "Finals",
+        _ => "Matchup"
+    };
+    let matchup_name = format!("{} {}", column_name, row + 1);
 
+    let matchup_frame = util::make_frame(&matchup_name, 12, 12, 12, 12);
     let matchup_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
 
     let team_names = shared_state.lock().unwrap().team_names();
@@ -203,7 +209,9 @@ fn make_matchup(shared_state: SharedState, col: u32, row: u32) -> gtk::Box {
     matchup_box.append(&winner_label);
     matchup_box.append(&winner_dropdown);
 
-    matchup_box
+    matchup_frame.set_child(Some(&matchup_box));
+
+    matchup_frame
 }
 
 fn get_matchup_ref_mut(state: &mut AppState, col: u32, row: u32) -> Option<&mut crate::models::Matchup> {

@@ -22,12 +22,12 @@ pub fn build_box(
     let refresh_box = RefreshBox::new();
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
-    let webserver_label = util::make_label("Webserver", 12, 12, 12, 12);
+    let webserver_frame = util::make_frame("Webserver", 12, 12, 12, 12);
     let webserver_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
     let start_ws_button = util::make_button("Start Webserver", 12, 12, 0, 0);
     let stop_ws_button = util::make_button("Stop Webserver", 12, 12, 0, 0);
     
-    let config_label = util::make_label("Config", 12, 12, 12, 12);
+    let config_frame = util::make_frame("Config", 12, 12, 12, 12);
     let config_buttons_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
     let open_config_button = util::make_button("Open Config", 12, 12, 0, 0);
     let save_config_button = util::make_button("Save Config", 12, 12, 0, 0);
@@ -109,11 +109,11 @@ pub fn build_box(
     config_buttons_box.append(&open_config_button);
     config_buttons_box.append(&save_config_button);
 
-    refresh_box.append(&webserver_label);
-    refresh_box.append(&webserver_buttons_box);
-
-    refresh_box.append(&config_label);
-    refresh_box.append(&config_buttons_box);
+    webserver_frame.set_child(Some(&webserver_buttons_box));
+    config_frame.set_child(Some(&config_buttons_box));
+    
+    refresh_box.append(&webserver_frame);
+    refresh_box.append(&config_frame);
 
     refresh_box
 }
