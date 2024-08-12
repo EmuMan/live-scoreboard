@@ -208,6 +208,7 @@ pub struct Match {
     pub rounds: Vec<Round>,
     pub team1: Option<usize>,
     pub team2: Option<usize>,
+    pub swap_scoreboard: bool,
 }
 
 impl Match {
@@ -215,11 +216,13 @@ impl Match {
         rounds: Vec<Round>,
         team1: Option<usize>,
         team2: Option<usize>,
+        swap_scoreboard: bool,
     ) -> Self {
         Self {
             rounds,
             team1,
             team2,
+            swap_scoreboard,
         }
     }
 
@@ -234,7 +237,7 @@ impl Match {
 
 impl Default for Match {
     fn default() -> Self {
-        Self::new(Vec::new(), None, None)
+        Self::new(Vec::new(), None, None, false)
     }
 }
 

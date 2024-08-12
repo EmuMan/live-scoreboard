@@ -14,7 +14,7 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
     refresh_box.set_orientation(gtk::Orientation::Vertical);
 
     let teams_container = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
-    let map_progress_container = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
+    let round_progress_container = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
 
     /////////////////
     // CONNECTIONS //
@@ -26,15 +26,15 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
         closure_local!(
             #[strong] shared_state,
             #[weak] teams_container,
-            #[weak] map_progress_container,
+            #[weak] round_progress_container,
             move |_refresh_box: RefreshBox, new_status: bool| {
                 if new_status {
                     shared_state.lock().unwrap().correct_rounds_to_count();
                     set_teams(&teams_container, shared_state.clone());
-                    set_map_progress_box(shared_state.clone(), map_progress_container)
+                    set_round_progress_box(shared_state.clone(), round_progress_container)
                 } else {
                     util::clear_box(&teams_container);
-                    util::clear_box(&map_progress_container);
+                    util::clear_box(&round_progress_container);
                 }
             }
         )
@@ -45,16 +45,55 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
     /////////////////
 
     refresh_box.append(&teams_container);
-    refresh_box.append(&map_progress_container);
+    refresh_box.append(&round_progress_container);
 
     refresh_box
 }
 
 fn set_teams(teams_container: &gtk::Box, shared_state: SharedState) {
+
+    //////////////////
+    // DECLARATIONS //
+    //////////////////
+
     let team_1_box = build_team_box(1, shared_state.clone());
-    let team_2_box = build_team_box(2, shared_state);
+    let team_2_box = build_team_box(2, shared_state.clone());
+
+    let swap_scoreboard_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let swap_scoreboard_label = util::make_label("Swap Scoreboard", 12, 12, 12, 12);
+    let swap_scoreboard_switch = gtk::Switch::builder().build();
+
+    ////////////////////
+    // INITIALIZATION //
+    ////////////////////
+
+    {
+        let state = shared_state.lock().unwrap();
+        swap_scoreboard_switch.set_state(state.current_match.swap_scoreboard);
+    }
+
+    /////////////////
+    // CONNECTIONS //
+    /////////////////
+
+    swap_scoreboard_switch.connect_state_set(clone!(
+        #[strong] shared_state,
+        move |_, switch_state| {
+            let mut state = shared_state.lock().unwrap();
+            state.current_match.swap_scoreboard = switch_state;
+            glib::signal::Propagation::Proceed
+        }
+    ));
+
+    /////////////////
+    // ARRANGEMENT //
+    /////////////////
+
+    swap_scoreboard_box.append(&swap_scoreboard_label);
+    swap_scoreboard_box.append(&swap_scoreboard_switch);
 
     teams_container.append(&team_1_box);
+    teams_container.append(&swap_scoreboard_box);
     teams_container.append(&team_2_box);
 }
 
@@ -135,14 +174,14 @@ fn get_team_icon(path: Option<&str>) -> gtk::Image {
     }
 }
 
-fn set_map_progress_box(shared_state: SharedState, map_progress_box: gtk::Box) {
+fn set_round_progress_box(shared_state: SharedState, round_progress_box: gtk::Box) {
     let state = shared_state.lock().unwrap();
     for (i, round) in state.current_match.rounds.iter().enumerate() {
-        map_progress_box.append(&make_map_box(shared_state.clone(), &state, round, i));
+        round_progress_box.append(&make_round_box(shared_state.clone(), &state, round, i));
     }
 }
 
-fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Round, round_index: usize) -> gtk::Box {
+fn make_round_box(shared_state: SharedState, state: &AppState, round: &models::Round, round_index: usize) -> gtk::Box {
 
     //////////////////
     // DECLARATIONS //
@@ -158,9 +197,9 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
         .unwrap_or(Vec::new());
     let map_model = util::get_model_with_none(&map_names);
 
-    let map_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let round_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
 
-    let map_info_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
+    let round_info_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
     let gamemode_label = gtk::Label::new(Some("Gamemode"));
     let gamemode_dropdown = gtk::DropDown::new(Some(gamemode_model), gtk::Expression::NONE);
     let map_label = gtk::Label::new(Some("Map"));
@@ -294,10 +333,10 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
     // ARRANGEMENT //
     /////////////////
 
-    map_info_box.append(&gamemode_label);
-    map_info_box.append(&gamemode_dropdown);
-    map_info_box.append(&map_label);
-    map_info_box.append(&map_dropdown);
+    round_info_box.append(&gamemode_label);
+    round_info_box.append(&gamemode_dropdown);
+    round_info_box.append(&map_label);
+    round_info_box.append(&map_dropdown);
 
     team1_score_box.append(&team1_score_label);
     team1_score_box.append(&team1_score_entry);
@@ -310,9 +349,9 @@ fn make_map_box(shared_state: SharedState, state: &AppState, round: &models::Rou
     completed_box.append(&completed_label);
     completed_box.append(&completed_switch);
 
-    map_box.append(&map_info_box);
-    map_box.append(&scores_box);
-    map_box.append(&completed_box);
+    round_box.append(&round_info_box);
+    round_box.append(&scores_box);
+    round_box.append(&completed_box);
     
-    map_box
+    round_box
 }
