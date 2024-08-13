@@ -27,6 +27,9 @@ pub fn build_ui(app: &Application) {
         .default_height(1000)
         .build();
 
+    window.settings().set_gtk_theme_name(Some("Default-hc-dark"));
+    window.settings().set_gtk_font_name(Some("Segoe UI 12"));
+
     let notebook = build_notebook(&window, shared_state.clone());
 
     notebook.connect_switch_page(move |notebook, page, page_num| {
