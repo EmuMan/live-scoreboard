@@ -29,7 +29,7 @@ pub fn build_box(_window: &gtk::ApplicationWindow, shared_state: SharedState) ->
             #[weak] round_progress_container,
             move |_refresh_box: RefreshBox, new_status: bool| {
                 if new_status {
-                    shared_state.lock().unwrap().correct_rounds_to_count();
+                    shared_state.lock().unwrap().data.correct_rounds_to_count();
                     set_teams(&teams_container, shared_state.clone());
                     set_round_progress_box(shared_state.clone(), round_progress_container)
                 } else {
@@ -69,7 +69,7 @@ fn set_teams(teams_container: &gtk::Box, shared_state: SharedState) {
 
     {
         let state = shared_state.lock().unwrap();
-        swap_scoreboard_switch.set_state(state.current_match.swap_scoreboard);
+        swap_scoreboard_switch.set_state(state.data.current_match.swap_scoreboard);
     }
 
     /////////////////
@@ -80,7 +80,7 @@ fn set_teams(teams_container: &gtk::Box, shared_state: SharedState) {
         #[strong] shared_state,
         move |_, switch_state| {
             let mut state = shared_state.lock().unwrap();
-            state.current_match.swap_scoreboard = switch_state;
+            state.data.current_match.swap_scoreboard = switch_state;
             glib::signal::Propagation::Proceed
         }
     ));
@@ -103,7 +103,7 @@ fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
     // DECLARATIONS //
     //////////////////
 
-    let team_names = shared_state.lock().unwrap().team_names();
+    let team_names = shared_state.lock().unwrap().data.team_names();
     let team_names_model = util::get_model_with_none(&team_names);
 
     let team_frame = util::make_frame(format!("Team {}", number).as_str(), 12, 12, 12, 12);
@@ -117,10 +117,10 @@ fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
 
     let state = shared_state.lock().unwrap();
 
-    let team_index = if number == 1 { state.current_match.team1 } else { state.current_match.team2 };
+    let team_index = if number == 1 { state.data.current_match.team1 } else { state.data.current_match.team2 };
     if let Some(team_index) = team_index {
         team_dropdown.set_selected(team_index as u32 + 1);
-        let team_logo_path = &state.division.teams.get(team_index).unwrap().icon;
+        let team_logo_path = &state.data.division.teams.get(team_index).unwrap().icon;
         team_logo_container.append(&get_team_icon(team_logo_path.as_deref()));
     } else {
         team_dropdown.set_selected(0);
@@ -136,7 +136,7 @@ fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
         move |dropdown| {
             let selected_index = dropdown.selected();
             let mut state = shared_state.lock().unwrap();
-            let team_index = if number == 1 { &mut state.current_match.team1 } else { &mut state.current_match.team2 };
+            let team_index = if number == 1 { &mut state.data.current_match.team1 } else { &mut state.data.current_match.team2 };
             *team_index = if selected_index == 0 {
                 None
             } else {
@@ -148,7 +148,7 @@ fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
                 team_logo_container.remove(&first_child);
             }
             if let Some(team_index) = *team_index {
-                let team = &state.division.teams[team_index];
+                let team = &state.data.division.teams[team_index];
                 team_logo_container.append(&get_team_icon(team.icon.as_deref()));
             }
         }
@@ -177,7 +177,7 @@ fn get_team_icon(path: Option<&str>) -> gtk::Image {
 
 fn set_round_progress_box(shared_state: SharedState, round_progress_box: gtk::Box) {
     let state = shared_state.lock().unwrap();
-    for (i, round) in state.current_match.rounds.iter().enumerate() {
+    for (i, round) in state.data.current_match.rounds.iter().enumerate() {
         round_progress_box.append(&make_round_frame(shared_state.clone(), &state, round, i));
     }
 }
@@ -188,9 +188,9 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
     // DECLARATIONS //
     //////////////////
     
-    let gamemode_names = state.settings.gamemodes.iter().map(|g| g.name.clone()).collect();
+    let gamemode_names = state.data.settings.gamemodes.iter().map(|g| g.name.clone()).collect();
     let gamemode_index = util::index_of_or_none(&gamemode_names, &round.gamemode);
-    let gamemode = gamemode_index.and_then(|index| state.settings.gamemodes.get(index));
+    let gamemode = gamemode_index.and_then(|index| state.data.settings.gamemodes.get(index));
     let gamemode_model = util::get_model_with_none(&gamemode_names);
     
     let map_names = gamemode
@@ -257,7 +257,7 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
                     new_map_model = util::get_model_with_none(&Vec::new());
                     None
                 } else {
-                    let gamemode = state.settings.gamemodes.get((selected_index - 1) as usize)
+                    let gamemode = state.data.settings.gamemodes.get((selected_index - 1) as usize)
                         .and_then(|gamemode| Some(gamemode.clone()));
                     let map_names: Option<Vec<String>> = gamemode
                         .as_ref()
@@ -265,7 +265,7 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
                     new_map_model = util::get_model_with_none(&map_names.unwrap_or(Vec::new()));
                     gamemode
                 };
-                if let Some(round) = state.current_match.rounds.get_mut(round_index) {
+                if let Some(round) = state.data.current_match.rounds.get_mut(round_index) {
                     round.gamemode = gamemode.and_then(|gamemode| Some(gamemode.name));
                 }
             }
@@ -285,13 +285,13 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
             if gamemode_index == 0 {
                 return;
             }
-            if let Some(gamemode) = state.settings.gamemodes.get((gamemode_index - 1) as usize) {
+            if let Some(gamemode) = state.data.settings.gamemodes.get((gamemode_index - 1) as usize) {
                 let selected_map = if selected_index == 0 {
                     None
                 } else {
                     Some(gamemode.maps[(selected_index - 1) as usize].clone())
                 };
-                if let Some(round) = state.current_match.rounds.get_mut(round_index) {
+                if let Some(round) = state.data.current_match.rounds.get_mut(round_index) {
                     round.map = selected_map.and_then(|map| Some(map.name));
                 }
             }
@@ -303,7 +303,7 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
         move |entry| {
             let score = entry.value() as u32;
             let mut state = shared_state.lock().unwrap();
-            if let Some(round) = state.current_match.rounds.get_mut(round_index) {
+            if let Some(round) = state.data.current_match.rounds.get_mut(round_index) {
                 round.team1_score = score as usize;
             }
         }
@@ -314,7 +314,7 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
         move |entry| {
             let score = entry.value() as u32;
             let mut state = shared_state.lock().unwrap();
-            if let Some(round) = state.current_match.rounds.get_mut(round_index) {
+            if let Some(round) = state.data.current_match.rounds.get_mut(round_index) {
                 round.team2_score = score as usize;
             }
         }
@@ -324,7 +324,7 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
         #[strong] shared_state,
         move |_, switch_state| {
             let mut state = shared_state.lock().unwrap();
-            if let Some(round) = state.current_match.rounds.get_mut(round_index) {
+            if let Some(round) = state.data.current_match.rounds.get_mut(round_index) {
                 round.completed = switch_state;
             }
             glib::signal::Propagation::Proceed

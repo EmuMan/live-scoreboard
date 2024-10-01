@@ -8,16 +8,13 @@ use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
 use gtk::glib;
 
-use crate::models::{Division, Match, Settings};
-use crate::{AppState, SharedState};
+use crate::{AppState, SharedState, SaveData};
 use components::refresh_box;
 
 pub fn build_ui(app: &Application) {
     let shared_state = AppState::new_shared(
-        Settings::default(),
-        Division::default(),
-        Vec::new(),
-        Match::default(),
+        None,
+        SaveData::default(),
     );
 
     let window = ApplicationWindow::builder()

@@ -46,8 +46,8 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         Box::new(move |team| {
             gtk::ListBoxRow::builder().child(&make_team_row(team)).build()
         }),
-        Box::new(move |state| Some(&state.division.teams)),
-        Box::new(move |state| Some(&mut state.division.teams)),
+        Box::new(move |state| Some(&state.data.division.teams)),
+        Box::new(move |state| Some(&mut state.data.division.teams)),
         Box::new(move |team| {
             vec![
                 EntryWindowField::Text {
@@ -90,7 +90,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
             move |state| {
                 let selected_row = teams_list_box.selected_row();
                 let index = selected_row.map(|row| row.index() as usize).unwrap_or(0);
-                state.division.teams.get(index).map(|team| &team.players)
+                state.data.division.teams.get(index).map(|team| &team.players)
             }
         )),
         Box::new(clone!(
@@ -98,7 +98,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
             move |state| {
                 let selected_row = teams_list_box.selected_row();
                 let index = selected_row.map(|row| row.index() as usize).unwrap_or(0);
-                state.division.teams.get_mut(index).map(|team| &mut team.players)
+                state.data.division.teams.get_mut(index).map(|team| &mut team.players)
             }
         )),
         Box::new(move |player| {
@@ -110,13 +110,13 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 },
                 EntryWindowField::DropDown {
                     label: String::from("Role"),
-                    options: state.settings.roles.iter()
+                    options: state.data.settings.roles.iter()
                         .map(|role| role.name.clone()).collect(),
                     prefill: player.as_ref().map(|player| player.role.clone())
                 },
                 EntryWindowField::DropDown {
                     label: String::from("Character"),
-                    options: state.settings.characters.iter()
+                    options: state.data.settings.characters.iter()
                         .map(|character| character.name.clone()).collect(),
                     prefill: player.as_ref().map(|player| player.character.clone())
                 },
@@ -234,7 +234,7 @@ fn make_player_row(player: &models::Player) -> gtk::Box {
 
 fn correct_bracket(state: &mut AppState, old_index: usize, new_index: Option<usize>) {
     // there is a better way to do this but i'm feeling kinda lazy rn tbh ngl
-    for col in &mut state.division.bracket {
+    for col in &mut state.data.division.bracket {
         for matchup in col {
             matchup.team1 = correct_index(matchup.team1, old_index, new_index);
             matchup.team2 = correct_index(matchup.team2, old_index, new_index);

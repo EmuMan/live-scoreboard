@@ -36,8 +36,8 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         Box::new(move |asset| {
             gtk::ListBoxRow::builder().child(&make_asset_row(asset)).build()
         }),
-        Box::new(move |state| Some(&state.assets)),
-        Box::new(move |state| Some(&mut state.assets)),
+        Box::new(move |state| Some(&state.data.assets)),
+        Box::new(move |state| Some(&mut state.data.assets)),
         Box::new(move |asset| {
             vec![
                 EntryWindowField::Text {
@@ -74,7 +74,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
             if let Some(selected_row) = selected_row {
                 let index = selected_row.index() as usize;
                 let state = shared_state.lock().unwrap();
-                if let Some(asset) = state.assets.get(index) {
+                if let Some(asset) = state.data.assets.get(index) {
                     let absolute_path = crate::fs::from_web_path(&asset.path);
                     let image = util::load_image(&absolute_path, 200, 200);
                     if let Some(child) = picture_container.first_child() {

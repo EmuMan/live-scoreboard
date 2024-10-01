@@ -3,9 +3,11 @@ use std::fs;
 use gtk::{self, gio, prelude::*};
 use gtk::glib::clone;
 
+use crate::{SharedState, SaveData};
+
 pub fn open_config_file(
     parent_window: &gtk::ApplicationWindow,
-    shared_state: crate::SharedState,
+    shared_state: SharedState,
 ) {
     let file_dialogue = gtk::FileDialog::builder()
         .title("Open Config File")
@@ -20,25 +22,31 @@ pub fn open_config_file(
         move |result| {
             result.ok()
                 .and_then(|file| file.path())
-                .and_then(|path| {
-                    println!("Opening config file: {:?}", path);
-                    fs::read_to_string(path).ok()
-                })
-                .map(|contents| {
-                    let new_data = serde_json::from_str::<crate::AppState>(&contents);
-                    match new_data {
-                        Ok(mut data) => {
-                            data.correct_rounds_to_count();
-                            let mut state = shared_state.lock().unwrap();
-                            *state = data;
-                        }
-                        Err(err) => {
-                            eprintln!("Error parsing config file: {:?}", err);
-                        }
-                    }
+                .map(|path| {
+                    read_into_state_from_config_file(shared_state.clone(), &path)
                 });
         }
     ));
+}
+
+fn read_into_state_from_config_file(shared_state: SharedState, path: &std::path::PathBuf) {
+    println!("Opening config file: {:?}", path);
+    fs::read_to_string(path).ok()
+        .map(|contents| {
+            let new_data = serde_json::from_str::<SaveData>(&contents);
+            match new_data {
+                Ok(mut data) => {
+                    data.correct_rounds_to_count();
+                    let mut state = shared_state.lock().unwrap();
+                    state.loaded_config = Some(path.clone());
+                    state.data = data;
+                    println!("Config file opened successfully: {:?}", path);
+                }
+                Err(err) => {
+                    eprintln!("Error parsing config file: {:?}", err);
+                }
+            }
+        });
 }
 
 pub fn save_config_file(
@@ -56,14 +64,25 @@ pub fn save_config_file(
     file_dialogue.save(Some(parent_window), cancellable, move |result| {
         result.ok()
             .and_then(|file| file.path())
-            .and_then(|mut path| {
+            .map(|mut path| {
                 path = path.with_extension("json");
-                println!("Saving config file: {:?}", path);
-                let contents = shared_state.lock().unwrap().clone();
-                let serialized = serde_json::to_string(&contents).unwrap();
-                fs::write(path, serialized).ok()
+                write_state_to_config_file(shared_state.clone(), &path)
             });
     });
+}
+
+fn write_state_to_config_file(shared_state: SharedState, path: &std::path::PathBuf) {
+    println!("Saving config file: {:?}", path);
+    let state = shared_state.lock().unwrap().clone();
+    let serialized = serde_json::to_string(&state.data).unwrap();
+    match fs::write(path, serialized) {
+        Ok(_) => {
+            let mut state = shared_state.lock().unwrap();
+            state.loaded_config = Some(path.clone());
+            println!("Config file saved successfully: {:?}", path);
+        },
+        Err(err) => eprintln!("Error saving config file: {:?}", err),
+    }
 }
 
 fn get_json_filters() -> gio::ListStore {

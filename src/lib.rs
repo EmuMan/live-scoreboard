@@ -8,22 +8,15 @@ pub mod models;
 pub mod fs;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AppState {
+pub struct SaveData {
     pub settings: models::Settings,
     pub division: models::Division,
     pub assets: Vec<models::Asset>,
     pub current_match: models::Match,
 }
 
-type SharedState = Arc<Mutex<AppState>>;
-
-impl AppState {
-    pub fn new(
-        settings: models::Settings,
-        division: models::Division,
-        assets: Vec<models::Asset>,
-        current_match: models::Match
-    ) -> Self {
+impl SaveData {
+    pub fn new(settings: models::Settings, division: models::Division, assets: Vec<models::Asset>, current_match: models::Match) -> Self {
         Self {
             settings,
             division,
@@ -32,13 +25,13 @@ impl AppState {
         }
     }
 
-    pub fn new_shared(
-        settings: models::Settings,
-        division: models::Division,
-        assets: Vec<models::Asset>,
-        current_match: models::Match
-    ) -> SharedState {
-        Arc::new(Mutex::new(Self::new(settings, division, assets, current_match)))
+    pub fn default() -> Self {
+        Self {
+            settings: models::Settings::default(),
+            division: models::Division::default(),
+            assets: Vec::new(),
+            current_match: models::Match::default(),
+        }
     }
 
     pub fn team_names(&self) -> Vec<String> {
@@ -91,6 +84,33 @@ impl AppState {
         while self.settings.round_count > self.current_match.rounds.len() {
             self.current_match.rounds.push(models::Round::default());
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct AppState {
+    pub loaded_config: Option<std::path::PathBuf>,
+    pub data: SaveData,
+}
+
+type SharedState = Arc<Mutex<AppState>>;
+
+impl AppState {
+    pub fn new(
+        loaded_config: Option<std::path::PathBuf>,
+        data: SaveData,
+    ) -> Self {
+        Self {
+            loaded_config,
+            data,
+        }
+    }
+
+    pub fn new_shared(
+        loaded_config: Option<std::path::PathBuf>,
+        data: SaveData,
+    ) -> SharedState {
+        Arc::new(Mutex::new(Self::new(loaded_config, data)))
     }
 }
 

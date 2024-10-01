@@ -2,9 +2,10 @@ use axum::{
     body::Body, extract::{Extension, Path}, response::{Html, Response}, routing::get, Router
 };
 use std::{fs, sync::Arc};
+use std::error::Error;
 use super::{error::AppError, WebserverState};
 
-use std::error::Error;
+use crate::SaveData;
 
 pub fn create_router(state: Arc<WebserverState>) -> Router {
     Router::new()
@@ -23,7 +24,7 @@ pub async fn render_bracket(
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
     
-    populate_context(&mut context, &state);
+    populate_context(&mut context, &state.data);
 
     match webserver_state.tera.render("bracket.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
@@ -41,16 +42,16 @@ pub async fn render_team(
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
 
-    populate_context(&mut context, &state);
+    populate_context(&mut context, &state.data);
 
     let team_index = if team_number == 1 {
-        state.current_match.team1
+        state.data.current_match.team1
     } else {
-        state.current_match.team2
+        state.data.current_match.team2
     };
     
     let team = team_index
-        .and_then(|index| state.division.teams.get(index))
+        .and_then(|index| state.data.division.teams.get(index))
         .ok_or(AppError::NotFound)?;
 
     context.insert("team", team);
@@ -70,7 +71,7 @@ pub async fn render_scoreboard(
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
 
-    populate_context(&mut context, &state);
+    populate_context(&mut context, &state.data);
     
     match webserver_state.tera.render("scoreboard.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
@@ -87,7 +88,7 @@ pub async fn render_rounds(
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
 
-    populate_context(&mut context, &state);
+    populate_context(&mut context, &state.data);
 
     match webserver_state.tera.render("rounds.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
@@ -116,28 +117,28 @@ pub async fn serve_asset(Path(path): Path<String>) -> Result<Response, AppError>
     Ok(response)
 }
 
-fn populate_context(context: &mut tera::Context, state: &crate::AppState) {
-    context.insert("assets", &state.assets_hashmap());
-    context.insert("role_icons", &state.roles_hashmap());
-    context.insert("character_icons", &state.characters_hashmap());
-    context.insert("gamemode_icons", &state.gamemodes_hashmap());
-    context.insert("teams", &state.division.teams);
-    context.insert("team_count", &state.team_names().len());
-    context.insert("bracket", &state.division.bracket);
-    context.insert("bracket_stage_count", &state.bracket_stage_count());
-    context.insert("bracket_visibilities", &state.bracket_visibilities());
-    context.insert("rounds", &state.current_match.rounds);
+fn populate_context(context: &mut tera::Context, data: &SaveData) {
+    context.insert("assets", &data.assets_hashmap());
+    context.insert("role_icons", &data.roles_hashmap());
+    context.insert("character_icons", &data.characters_hashmap());
+    context.insert("gamemode_icons", &data.gamemodes_hashmap());
+    context.insert("teams", &data.division.teams);
+    context.insert("team_count", &data.team_names().len());
+    context.insert("bracket", &data.division.bracket);
+    context.insert("bracket_stage_count", &data.bracket_stage_count());
+    context.insert("bracket_visibilities", &data.bracket_visibilities());
+    context.insert("rounds", &data.current_match.rounds);
 
-    if state.current_match.swap_scoreboard {
-        context.insert("team2", &state.current_match.team1.map(|i| &state.division.teams[i]));
-        context.insert("team1", &state.current_match.team2.map(|i| &state.division.teams[i]));
-        context.insert("team2_score", &state.current_match.team1_score());
-        context.insert("team1_score", &state.current_match.team2_score());
+    if data.current_match.swap_scoreboard {
+        context.insert("team2", &data.current_match.team1.map(|i| &data.division.teams[i]));
+        context.insert("team1", &data.current_match.team2.map(|i| &data.division.teams[i]));
+        context.insert("team2_score", &data.current_match.team1_score());
+        context.insert("team1_score", &data.current_match.team2_score());
     } else {
-        context.insert("team1", &state.current_match.team1.map(|i| &state.division.teams[i]));
-        context.insert("team2", &state.current_match.team2.map(|i| &state.division.teams[i]));
-        context.insert("team1_score", &state.current_match.team1_score());
-        context.insert("team2_score", &state.current_match.team2_score());
+        context.insert("team1", &data.current_match.team1.map(|i| &data.division.teams[i]));
+        context.insert("team2", &data.current_match.team2.map(|i| &data.division.teams[i]));
+        context.insert("team1_score", &data.current_match.team1_score());
+        context.insert("team2_score", &data.current_match.team2_score());
     }
 }
 

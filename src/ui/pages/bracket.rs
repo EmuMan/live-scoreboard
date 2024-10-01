@@ -91,7 +91,7 @@ fn make_matchup(shared_state: SharedState, col: u32, row: u32) -> gtk::Frame {
     let matchup_frame = util::make_frame(&matchup_name, 12, 12, 12, 12);
     let matchup_box = util::make_box(gtk::Orientation::Vertical, 12, 12, 12, 12);
 
-    let team_names = shared_state.lock().unwrap().team_names();
+    let team_names = shared_state.lock().unwrap().data.team_names();
     let team_names_model = util::get_model_with_none(&team_names);
 
     let team1_box = util::make_box(gtk::Orientation::Horizontal, 12, 12, 12, 12);
@@ -215,7 +215,7 @@ fn make_matchup(shared_state: SharedState, col: u32, row: u32) -> gtk::Frame {
 }
 
 fn get_matchup_ref_mut(state: &mut AppState, col: u32, row: u32) -> Option<&mut crate::models::Matchup> {
-    let bracket = &mut state.division.bracket;
+    let bracket = &mut state.data.division.bracket;
     bracket.get_mut(col as usize)
         .and_then(|col| col.get_mut(row as usize))
 }
