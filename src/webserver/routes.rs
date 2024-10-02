@@ -114,6 +114,8 @@ pub async fn serve_asset(
         return Err(AppError::NotFound);
     };
 
+    let path = path.trim_start_matches("/");
+    let path = format!("assets/{}", path);
     let path = from_relative_path(&base_path, &path);
 
     // Match path end with whether it is text or binary
