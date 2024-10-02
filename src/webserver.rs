@@ -27,12 +27,12 @@ impl WebserverState {
 }
 
 pub async fn create_and_run_webserver(
-    template_dir: &str,
+    template_dir: String,
     addr: &str,
     shutdown_rx: oneshot::Receiver<()>,
     shared_state: SharedState,
 ) {
-    let webserver_state = Arc::new(WebserverState::new(template_dir, shared_state));
+    let webserver_state = Arc::new(WebserverState::new(&template_dir, shared_state));
     let app = routes::create_router(webserver_state);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app)

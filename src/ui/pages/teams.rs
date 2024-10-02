@@ -4,7 +4,7 @@ use gtk::glib;
 
 use crate::AppState;
 use crate::ui::synced_list_box::{SyncedListBox, ConnectableList};
-use crate::{models, ui::{util, entry_window::EntryWindowField, components::refresh_box::RefreshBox}, SharedState};
+use crate::{models, fs, ui::{util, entry_window::EntryWindowField, components::refresh_box::RefreshBox}, SharedState};
 
 pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> RefreshBox {
 
@@ -38,13 +38,15 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     /////////////////
     // CONNECTIONS //
     /////////////////
+    
+    let base_path = shared_state.lock().unwrap().get_base_path();
 
     let teams_synced_list_box = SyncedListBox::new_shared(
         window.clone(),
         teams_list_box.clone(),
         shared_state.clone(),
         Box::new(move |team| {
-            gtk::ListBoxRow::builder().child(&make_team_row(team)).build()
+            gtk::ListBoxRow::builder().child(&make_team_row(base_path.as_deref(), team)).build()
         }),
         Box::new(move |state| Some(&state.data.division.teams)),
         Box::new(move |state| Some(&mut state.data.division.teams)),
@@ -101,27 +103,30 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
                 state.data.division.teams.get_mut(index).map(|team| &mut team.players)
             }
         )),
-        Box::new(move |player| {
-            let state = shared_state.lock().unwrap();
-            vec![
-                EntryWindowField::Text {
-                    label: String::from("Name"),
-                    prefill: player.as_ref().map(|player| player.name.clone())
-                },
-                EntryWindowField::DropDown {
-                    label: String::from("Role"),
-                    options: state.data.settings.roles.iter()
-                        .map(|role| role.name.clone()).collect(),
-                    prefill: player.as_ref().map(|player| player.role.clone())
-                },
-                EntryWindowField::DropDown {
-                    label: String::from("Character"),
-                    options: state.data.settings.characters.iter()
-                        .map(|character| character.name.clone()).collect(),
-                    prefill: player.as_ref().map(|player| player.character.clone())
-                },
-            ]
-        }),
+        Box::new(clone!(
+            #[strong] shared_state,
+            move |player| {
+                let state = shared_state.lock().unwrap();
+                vec![
+                    EntryWindowField::Text {
+                        label: String::from("Name"),
+                        prefill: player.as_ref().map(|player| player.name.clone())
+                    },
+                    EntryWindowField::DropDown {
+                        label: String::from("Role"),
+                        options: state.data.settings.roles.iter()
+                            .map(|role| role.name.clone()).collect(),
+                        prefill: player.as_ref().map(|player| player.role.clone())
+                    },
+                    EntryWindowField::DropDown {
+                        label: String::from("Character"),
+                        options: state.data.settings.characters.iter()
+                            .map(|character| character.name.clone()).collect(),
+                        prefill: player.as_ref().map(|player| player.character.clone())
+                    },
+                ]
+            }
+        )),
         Box::new(move |fields, _| {
             let player_name = fields.get("Name").unwrap_or(&None);
             let player_role = fields.get("Role").unwrap_or(&None);
@@ -152,11 +157,19 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         false,
         closure_local!(
             #[strong] teams_synced_list_box,
+            #[strong] shared_state,
             #[weak] teams_list_box,
             #[weak] players_list_box,
             move |_box: RefreshBox, new_status: bool| {
                 if new_status {
                     teams_synced_list_box.lock().unwrap().populate();
+                    let make_row = &teams_synced_list_box.lock().unwrap().make_row;
+                    *make_row.lock().unwrap() = {
+                        let base_path = shared_state.lock().unwrap().get_base_path();
+                        Box::new(move |team| {
+                            gtk::ListBoxRow::builder().child(&make_team_row(base_path.as_deref(), team)).build()
+                        })
+                    };
                 } else {
                     teams_list_box.remove_all();
                     players_list_box.remove_all();
@@ -196,7 +209,7 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
     refresh_box
 }
 
-fn make_team_row(team: &models::Team) -> gtk::Box {
+fn make_team_row(base_path: Option<&std::path::Path>, team: &models::Team) -> gtk::Box {
     let team_box = gtk::Box::builder()
         .orientation(gtk::Orientation::Horizontal)
         .build();
@@ -204,8 +217,12 @@ fn make_team_row(team: &models::Team) -> gtk::Box {
     let team_label = util::make_label(&team.name, 12, 12, 12, 12);
     let team_icon = match &team.icon {
         Some(path) => {
-            let path = crate::fs::from_web_path(path);
-            util::load_image(&path, 30, 30)
+            if let Some(base_path) = base_path {
+                let path = fs::from_relative_path(base_path, path);
+                util::load_image(&path, 30, 30)
+            } else {
+                gtk::Image::from_icon_name("image-missing")
+            }
         },
         None => gtk::Image::from_icon_name("image-missing"), // TODO: Implement missing icon
     };

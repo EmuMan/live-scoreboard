@@ -112,6 +112,11 @@ impl AppState {
     ) -> SharedState {
         Arc::new(Mutex::new(Self::new(loaded_config, data)))
     }
+
+    pub fn get_base_path(&self) -> Option<std::path::PathBuf> {
+        self.loaded_config.as_ref()
+            .map(|path| fs::remove_file_from_path(path))
+    }
 }
 
 pub fn runtime() -> &'static Runtime {

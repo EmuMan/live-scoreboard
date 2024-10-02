@@ -5,7 +5,7 @@ use gtk::glib::clone;
 use gtk::glib;
 use gtk::gio;
 
-use crate::ui::util;
+use crate::{ui::util, fs, SharedState};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum EntryWindowField {
@@ -63,6 +63,7 @@ impl HasResult for gtk::Label {
 
 pub fn open_entry_window(
     primary_window: &gtk::ApplicationWindow,
+    shared_state: SharedState,
     title: &str,
     fields: Vec<EntryWindowField>,
     on_submit: Box<dyn Fn(HashMap<String, Option<String>>)>,
@@ -122,6 +123,7 @@ pub fn open_entry_window(
                 
                 file_button.connect_clicked(clone!(
                     #[strong] file_dialog,
+                    #[weak] shared_state,
                     #[weak] window,
                     #[weak] file_label,
                     move |_| {
@@ -131,7 +133,9 @@ pub fn open_entry_window(
                             move |result| {
                                 result.ok()
                                     .and_then(|file| file.path())
-                                    .and_then(|path| crate::fs::to_web_path(&path))
+                                    .and_then(|path| fs::to_relative_path(
+                                        &shared_state.lock().unwrap().get_base_path()?, &path
+                                    ))
                                     .map(|path| file_label.set_label(path.as_str()));
                             }
                         ));

@@ -120,8 +120,10 @@ fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
     let team_index = if number == 1 { state.data.current_match.team1 } else { state.data.current_match.team2 };
     if let Some(team_index) = team_index {
         team_dropdown.set_selected(team_index as u32 + 1);
-        let team_logo_path = &state.data.division.teams.get(team_index).unwrap().icon;
-        team_logo_container.append(&get_team_icon(team_logo_path.as_deref()));
+        if let Some(base_path) = state.get_base_path() {
+            let team = &state.data.division.teams[team_index];
+            team_logo_container.append(&get_team_icon(&base_path, team.icon.as_deref()));
+        }
     } else {
         team_dropdown.set_selected(0);
     }
@@ -147,9 +149,9 @@ fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
             if let Some(first_child) = first_child {
                 team_logo_container.remove(&first_child);
             }
-            if let Some(team_index) = *team_index {
+            if let (Some(team_index), Some(base_path)) = (*team_index, state.get_base_path()) {
                 let team = &state.data.division.teams[team_index];
-                team_logo_container.append(&get_team_icon(team.icon.as_deref()));
+                team_logo_container.append(&get_team_icon(&base_path, team.icon.as_deref()));
             }
         }
     ));
@@ -166,9 +168,9 @@ fn build_team_frame(number: usize, shared_state: SharedState) -> gtk::Frame {
     team_frame
 }
 
-fn get_team_icon(path: Option<&str>) -> gtk::Image {
+fn get_team_icon(base_path: &std::path::Path, path: Option<&str>) -> gtk::Image {
     if let Some(path) = path {
-        let path = crate::fs::from_web_path(path);
+        let path = crate::fs::from_relative_path(base_path, path);
         util::load_image(&path, 200, 200)
     } else {
         gtk::Image::from_icon_name("image-missing")

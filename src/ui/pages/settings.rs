@@ -6,7 +6,7 @@ use gtk::glib;
 use glib::clone;
 use tokio::sync::oneshot;
 
-use crate::{webserver, ui::{util, components::refresh_box::RefreshBox}, runtime, SharedState};
+use crate::{webserver, fs, ui::{util, components::refresh_box::RefreshBox}, runtime, SharedState};
 
 pub fn build_box(
     primary_window: &gtk::ApplicationWindow,
@@ -41,11 +41,16 @@ pub fn build_box(
         #[strong] server_stop_tx,
         #[strong] shared_state,
         move |button| {
+            let Some(base_path) = shared_state.lock().unwrap().get_base_path() else {
+                println!("Failed to start webserver: no config loaded!");
+                return;
+            };
+            let templates_path = fs::from_relative_path(&base_path, "templates/**/*");
             println!("Starting webserver...");
             let (tx, rx) = oneshot::channel::<()>();
             let handle = runtime().spawn(
                 webserver::create_and_run_webserver(
-                    "templates/**/*",
+                    templates_path,
                     "0.0.0.0:3000",
                     rx,
                     shared_state.clone()

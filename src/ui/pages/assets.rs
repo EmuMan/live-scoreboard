@@ -2,7 +2,7 @@ use gtk::prelude::*;
 use gtk::glib::{self, clone, closure_local};
 
 use crate::ui::synced_list_box::{SyncedListBox, ConnectableList};
-use crate::{models, ui::{util, components::refresh_box::RefreshBox, entry_window::EntryWindowField}, SharedState};
+use crate::{models, fs, ui::{util, components::refresh_box::RefreshBox, entry_window::EntryWindowField}, SharedState};
 
 pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> RefreshBox {
 
@@ -71,18 +71,18 @@ pub fn build_box(window: &gtk::ApplicationWindow, shared_state: SharedState) -> 
         #[strong] shared_state,
         #[weak] picture_container,
         move |_, selected_row| {
-            if let Some(selected_row) = selected_row {
-                let index = selected_row.index() as usize;
-                let state = shared_state.lock().unwrap();
-                if let Some(asset) = state.data.assets.get(index) {
-                    let absolute_path = crate::fs::from_web_path(&asset.path);
-                    let image = util::load_image(&absolute_path, 200, 200);
-                    if let Some(child) = picture_container.first_child() {
-                        picture_container.remove(&child);
-                    }
-                    picture_container.append(&image);
-                }
+            let Some(selected_row) = selected_row else { return };
+            let index = selected_row.index() as usize;
+            let state = shared_state.lock().unwrap();
+            let Some(asset) = state.data.assets.get(index) else { return };
+            let Some(base_path) = state.get_base_path() else { return };
+            let absolute_path = fs::from_relative_path(&base_path, &asset.path);
+            println!("Loading image: {:?}", absolute_path);
+            let image = util::load_image(&absolute_path, 200, 200);
+            if let Some(child) = picture_container.first_child() {
+                picture_container.remove(&child);
             }
+            picture_container.append(&image);
         }
     ));
 

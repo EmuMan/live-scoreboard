@@ -5,16 +5,16 @@ use std::{fs, sync::Arc};
 use std::error::Error;
 use super::{error::AppError, WebserverState};
 
-use crate::SaveData;
+use crate::{SaveData, fs::from_relative_path};
 
-pub fn create_router(state: Arc<WebserverState>) -> Router {
+pub fn create_router(webserver_state: Arc<WebserverState>) -> Router {
     Router::new()
         .route("/bracket", get(render_bracket))
         .route("/assets/*path", get(serve_asset))
         .route("/team/:team", get(render_team))
         .route("/scoreboard", get(render_scoreboard))
         .route("/rounds", get(render_rounds))
-        .layer(Extension(state))
+        .layer(Extension(webserver_state))
 }
 
 pub async fn render_bracket(
@@ -29,7 +29,7 @@ pub async fn render_bracket(
     match webserver_state.tera.render("bracket.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
-            eprintln!("Failed to render template: {:?}", e.source());
+            eprintln!("Failed to render template: {:?}", e);
             Err(AppError::TemplateError)
         }
     }
@@ -41,7 +41,7 @@ pub async fn render_team(
 ) -> Result<Html<String>, AppError> {
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
-
+    
     populate_context(&mut context, &state.data);
 
     let team_index = if team_number == 1 {
@@ -70,7 +70,7 @@ pub async fn render_scoreboard(
 ) -> Result<Html<String>, AppError> {
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
-
+    
     populate_context(&mut context, &state.data);
     
     match webserver_state.tera.render("scoreboard.html", &context) {
@@ -87,7 +87,7 @@ pub async fn render_rounds(
 ) -> Result<Html<String>, AppError> {
     let mut context = webserver_state.context.lock().unwrap();
     let state = webserver_state.shared_state.lock().unwrap();
-
+    
     populate_context(&mut context, &state.data);
 
     match webserver_state.tera.render("rounds.html", &context) {
@@ -99,17 +99,29 @@ pub async fn render_rounds(
     }
 }
 
-pub async fn serve_asset(Path(path): Path<String>) -> Result<Response, AppError> {
+pub async fn serve_asset(
+    Path(path): Path<String>,
+    Extension(webserver_state): Extension<Arc<WebserverState>>,
+) -> Result<Response, AppError> {
     if path.contains("..") {
         return Err(AppError::NotFound);
     }
 
+    let state = webserver_state.shared_state.lock().unwrap();
+
+    let Some(base_path) = state.get_base_path() else {
+        eprintln!("Failed to get base path");
+        return Err(AppError::NotFound);
+    };
+
+    let path = from_relative_path(&base_path, &path);
+
     // Match path end with whether it is text or binary
     let content_type = get_content_type(path.as_str());
     let body = if content_type.starts_with("text") {
-        Body::from(fs::read_to_string(format!("assets/{}", path))?)
+        Body::from(fs::read_to_string(path)?)
     } else {
-        Body::from(fs::read(format!("assets/{}", path))?)
+        Body::from(fs::read(path)?)
     };
 
     let mut response = Response::new(body);

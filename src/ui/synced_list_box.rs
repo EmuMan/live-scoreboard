@@ -9,11 +9,11 @@ pub struct SyncedListBox<T> {
     pub window: gtk::ApplicationWindow,
     pub list_box: gtk::ListBox,
     pub shared_state: crate::SharedState,
-    pub make_row: Arc<Mutex<dyn Fn(&T) -> gtk::ListBoxRow>>,
-    pub get_data: Arc<Mutex<dyn Fn(&crate::AppState) -> Option<&Vec<T>>>>,
-    pub get_mut_data: Arc<Mutex<dyn Fn(&mut crate::AppState) -> Option<&mut Vec<T>>>>,
-    pub to_entry_window: Arc<Mutex<dyn Fn(Option<&T>) -> Vec<EntryWindowField>>>,
-    pub from_entry_window: Arc<Mutex<dyn Fn(&std::collections::HashMap<String, Option<String>>, Option<&T>) -> T>>,
+    pub make_row: Arc<Mutex<Box<dyn Fn(&T) -> gtk::ListBoxRow>>>,
+    pub get_data: Arc<Mutex<Box<dyn Fn(&crate::AppState) -> Option<&Vec<T>>>>>,
+    pub get_mut_data: Arc<Mutex<Box<dyn Fn(&mut crate::AppState) -> Option<&mut Vec<T>>>>>,
+    pub to_entry_window: Arc<Mutex<Box<dyn Fn(Option<&T>) -> Vec<EntryWindowField>>>>,
+    pub from_entry_window: Arc<Mutex<Box<dyn Fn(&std::collections::HashMap<String, Option<String>>, Option<&T>) -> T>>>,
 }
 
 pub trait ConnectableList {
@@ -102,6 +102,7 @@ impl<T: Clone + 'static> SyncedListBox<T> {
 
         open_entry_window(
             &self.window,
+            shared_state.clone(),
             "Add Item",
             entry_window_fields,
             Box::new(move |fields| {
@@ -148,6 +149,7 @@ impl<T: Clone + 'static> SyncedListBox<T> {
 
             open_entry_window(
                 &self.window,
+                shared_state.clone(),
                 "Edit Item",
                 entry_window_fields,
                 Box::new(move |fields| {
