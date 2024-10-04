@@ -14,6 +14,7 @@ pub fn create_router(webserver_state: Arc<WebserverState>) -> Router {
         .route("/team/:team", get(render_team))
         .route("/scoreboard", get(render_scoreboard))
         .route("/rounds", get(render_rounds))
+        .route("/waiting", get(render_waiting))
         .layer(Extension(webserver_state))
 }
 
@@ -99,6 +100,23 @@ pub async fn render_rounds(
     }
 }
 
+pub async fn render_waiting(
+    Extension(webserver_state): Extension<Arc<WebserverState>>,
+) -> Result<Html<String>, AppError> {
+    let mut context = webserver_state.context.lock().unwrap();
+    let state = webserver_state.shared_state.lock().unwrap();
+    
+    populate_context(&mut context, &state.data);
+
+    match webserver_state.tera.render("waiting.html", &context) {
+        Ok(rendered) => Ok(Html(rendered)),
+        Err(e) => {
+            eprintln!("Failed to render template: {:?}", e.source());
+            Err(AppError::TemplateError)
+        }
+    }
+}
+
 pub async fn serve_asset(
     Path(path): Path<String>,
     Extension(webserver_state): Extension<Arc<WebserverState>>,
@@ -142,6 +160,7 @@ fn populate_context(context: &mut tera::Context, data: &SaveData) {
     context.insert("bracket_stage_count", &data.bracket_stage_count());
     context.insert("bracket_visibilities", &data.bracket_visibilities());
     context.insert("rounds", &data.current_match.rounds);
+    context.insert("division_name", &data.division.name);
 
     if data.current_match.swap_scoreboard {
         context.insert("team2", &data.current_match.team1.map(|i| &data.division.teams[i]));

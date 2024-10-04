@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting</title>
+    <link rel="stylesheet" href="/assets/css/waiting.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>{{ division_name }}</h2>
+            <h1>STARTING SOON</h1>
+        </div>
+
+        <div class="matchups">
+            <div class="matchup">
+                <!-- <p class="type">BO3</p> -->
+                <div class="teams">
+                    <p class="team">{{ team1.name }}</p>
+                    <div class="vs-container">
+                        <p class="vs">VS</p>
+                    </div>
+                    <p class="team">{{ team2.name }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="social">
+                <img src="/assets/images/icons/twitch.png" alt="Twitch">
+                <p>CalPoly_Esports</p>
+            </div>
+            <div class="social">
+                <img src="/assets/images/icons/twitter.png" alt="Twitter">
+                <p>@calpolyesports</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
