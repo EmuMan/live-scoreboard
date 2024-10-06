@@ -258,6 +258,9 @@ fn correct_bracket(state: &mut AppState, old_index: usize, new_index: Option<usi
             matchup.winner = correct_index(matchup.winner, old_index, new_index);
         }
     }
+
+    state.data.current_match.team1 = correct_index(state.data.current_match.team1, old_index, new_index);
+    state.data.current_match.team2 = correct_index(state.data.current_match.team2, old_index, new_index);
 }
 
 fn correct_index(index: Option<usize>, moved_from: usize, moved_to: Option<usize>) -> Option<usize> {

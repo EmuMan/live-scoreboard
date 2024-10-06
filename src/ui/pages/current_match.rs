@@ -69,7 +69,7 @@ fn set_teams(teams_container: &gtk::Box, shared_state: SharedState) {
 
     {
         let state = shared_state.lock().unwrap();
-        swap_scoreboard_switch.set_state(state.data.current_match.swap_scoreboard);
+        swap_scoreboard_switch.set_active(state.data.current_match.swap_scoreboard);
     }
 
     /////////////////
@@ -241,7 +241,7 @@ fn make_round_frame(shared_state: SharedState, state: &AppState, round: &models:
 
     team1_score_entry.set_value(round.team1_score as f64);
     team2_score_entry.set_value(round.team2_score as f64);
-    completed_switch.set_state(round.completed);
+    completed_switch.set_active(round.completed);
 
     /////////////////
     // CONNECTIONS //

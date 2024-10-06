@@ -3,7 +3,7 @@
     --container-height: 85%;
     
     --tournament-name-font-size: 4rem;
-    --tournament-name-color: gold;
+    --tournament-name-color: #BD8B13;
 
     --header-font-size: 8rem;
     --header-spacing: -1.5rem;
@@ -12,19 +12,19 @@
     --matchup-spacing: 1rem;
 
     --matchup-type-font-size: 2rem;
-    --matchup-type-color: gold;
+    --matchup-type-color: #BD8B13;
 
     --matchup-teams-height: 5rem;
     --matchup-border-width: 7px;
-    --matchup-accent-color: #ff9c00;
+    --matchup-accent-color: #BD8B13;
 
     --team-font-size: 3.5rem;
-    --team-color: #8cba11;
+    --team-color: #154734;
 
     --vs-width: 13rem;
     --vs-font-size: 3.5rem;
     --vs-color: white;
-    --vs-background-color: #ff9c00;
+    --vs-background-color: #BD8B13;
 
     --social-font-size: 3rem;
     --social-img-size: 4rem;

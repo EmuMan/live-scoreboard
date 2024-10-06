@@ -161,18 +161,11 @@ fn populate_context(context: &mut tera::Context, data: &SaveData) {
     context.insert("bracket_visibilities", &data.bracket_visibilities());
     context.insert("rounds", &data.current_match.rounds);
     context.insert("division_name", &data.division.name);
-
-    if data.current_match.swap_scoreboard {
-        context.insert("team2", &data.current_match.team1.map(|i| &data.division.teams[i]));
-        context.insert("team1", &data.current_match.team2.map(|i| &data.division.teams[i]));
-        context.insert("team2_score", &data.current_match.team1_score());
-        context.insert("team1_score", &data.current_match.team2_score());
-    } else {
-        context.insert("team1", &data.current_match.team1.map(|i| &data.division.teams[i]));
-        context.insert("team2", &data.current_match.team2.map(|i| &data.division.teams[i]));
-        context.insert("team1_score", &data.current_match.team1_score());
-        context.insert("team2_score", &data.current_match.team2_score());
-    }
+    context.insert("team1", &data.current_match.team1.map(|i| &data.division.teams[i]));
+    context.insert("team2", &data.current_match.team2.map(|i| &data.division.teams[i]));
+    context.insert("team1_score", &data.current_match.team1_score());
+    context.insert("team2_score", &data.current_match.team2_score());
+    context.insert("swap_scoreboard", &data.current_match.swap_scoreboard);
 }
 
 fn get_content_type(path: &str) -> &'static str {

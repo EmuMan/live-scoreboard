@@ -5,15 +5,16 @@
 
     --header-font-size: 5rem;
     --header-bottom-spacing: 2rem;
+    --header-color: white;
 
     --rounds-width: 95%;
-
     --round-margin: 0.25rem;
+    --round-color: white;
 
     --round-top-half-height: 25rem;
     --round-top-half-background-neutral: #aaaaaa;
-    --round-top-half-background-team-1: #8cba11;
-    --round-top-half-background-team-2: #ff9c00;
+    --round-top-half-background-team-1: #154734;
+    --round-top-half-background-team-2: #BD8B13;
 
     --team-name-font-size: 2rem;
     --team-name-vertical-spacing: 0.5rem;
@@ -90,6 +91,7 @@ body {
 .header {
     font-size: var(--header-font-size);
     font-weight: bold;
+    color: var(--header-color);
     padding-bottom: var(--header-bottom-spacing);
 }
 
@@ -109,6 +111,7 @@ body {
     width: 100%;
     margin-left: var(--round-margin);
     margin-right: var(--round-margin);
+    color: var(--round-color);
 }
 
 .round .top-half {
