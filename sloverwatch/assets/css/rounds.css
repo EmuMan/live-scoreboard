@@ -1,6 +1,6 @@
 :root {
     --container-width: 80%;
-    --container-height: 75%;
+    --container-height: 80%;
     --container-background-color: #ffffff70;
 
     --header-font-size: 5rem;
@@ -23,13 +23,13 @@
 
     --score-font-size: 3rem;
 
-    --round-bottom-half-height: 7rem;
+    --round-bottom-half-height: 10rem;
     --round-bottom-half-top-spacing: 1rem;
 
-    --map-name-font-size: 1.5rem;
+    --map-name-font-size: 3rem;
     --map-name-spacing: 0.5rem;
 
-    --gamemode-name-font-size: 1rem;
+    --gamemode-name-font-size: 2rem;
 
     /* Overwatch Official League Branding Colors */
     --ow-contenders-green: #8cba11;

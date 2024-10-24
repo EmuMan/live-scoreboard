@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tauri + SvelteKit + Typescript App</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+      }
+
+      /* width */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      /* Track */
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      /* Handle */
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+      }
+
+      /* Handle on hover */
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+      button {
+        cursor: pointer;
+        background-color: transparent;
+        border: 1px solid #ccc;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        color: white;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        color: #888;
+      }
+
+      button:hover:not(:disabled) {
+        background-color: #777;
+      }
+
+      input[type="text"], input[type="number"] {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        border: 1px solid #ccc;
+        background-color: transparent;
+        color: white;
+      }
+
+      select {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        border: 1px solid #ccc;
+        background-color: transparent;
+        color: white;
+      }
+
+      select[size="1"] > option {
+        background-color: #333;
+        color: white;
+      }
+    </style>
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>

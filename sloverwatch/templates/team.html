@@ -19,15 +19,15 @@
                 {% for player in team.players %}
                     <div class="player-card">
                         <div class="character">
-                            {% if player.character in character_icons %}
-                                <img src="{{ character_icons | get(key=player.character) }}" alt="{{ player.character }}">
+                            {% if not is_null(value=player.character) and not is_null(value=characters[player.character].image) %}
+                                <img src="{{ characters[player.character].image }}" alt="{{ characters[player.character].name }}">
                             {% endif %}
                         </div>
                         <div class="player-info">
                             <span class="player-name">{{ player.name }}</span>
                             <span class="player-role">
-                                {% if player.role in role_icons %}
-                                    <img src="{{ role_icons | get(key=player.role) }}" alt="{{ player.role }}">
+                                {% if not is_null(value=player.role) and not is_null(value=roles[player.role].icon) %}
+                                <img src="{{ roles[player.role].icon }}" alt="{{ characters[player.role].name }}">
                                 {% endif %}
                             </span>
                         </div>
