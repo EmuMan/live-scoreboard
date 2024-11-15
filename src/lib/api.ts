@@ -74,3 +74,7 @@ export async function getUrlFromRelativePath(path: string): Promise<string | nul
 export async function correctRoundsToCount(): Promise<void> {
     await invoke("correct_rounds_to_count");
 }
+
+export async function correctBracketToCount(): Promise<void> {
+    await invoke("correct_bracket_to_count");
+}

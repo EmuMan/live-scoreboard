@@ -186,6 +186,11 @@ fn correct_rounds_to_count(shared_state: State<'_, SharedState>) {
     shared_state.lock().unwrap().data.correct_rounds_to_count();
 }
 
+#[tauri::command]
+fn correct_bracket_to_count(shared_state: State<'_, SharedState>) {
+    shared_state.lock().unwrap().data.correct_bracket_to_count();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     Builder::default()
@@ -213,6 +218,7 @@ pub fn run() {
             to_relative_path,
             from_relative_path,
             correct_rounds_to_count,
+            correct_bracket_to_count,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

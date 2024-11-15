@@ -45,32 +45,32 @@
     { name: "Assets", icon: "/icons/icons8-image.svg" },
     { name: "Settings", icon: "/icons/icons8-settings.svg" },
   ]}
-  bind:visibilities={visibilities}
+  bind:visibilities
 >
   {#if visibilities[0] && division}
     <TeamsPage
-      bind:division={division}
-      bind:currentMatch={currentMatch}
-      bind:settings={settings} />
+      bind:division
+      bind:currentMatch
+      bind:settings />
   {/if}
   {#if visibilities[1] && division && currentMatch}
     <CurrentMatchPage
-      bind:currentMatch={currentMatch}
-      bind:division={division}
-      bind:settings={settings} />
+      bind:currentMatch
+      bind:division
+      bind:settings />
   {/if}
   {#if visibilities[2]}
-    <BracketPage />
+    <BracketPage bind:division />
   {/if}
   {#if visibilities[3]}
-    <AssetsPage bind:assets={assets} />
+    <AssetsPage bind:assets />
   {/if}
   {#if visibilities[4]}
     <SettingsPage
-      bind:loadedConfig={loadedConfig}
-      bind:settings={settings}
-      bind:division={division}
-      bind:currentMatch={currentMatch}
+      bind:loadedConfig
+      bind:settings
+      bind:division
+      bind:currentMatch
       reload={reloadAll} />
   {/if}
 </SideNav>

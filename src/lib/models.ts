@@ -1,6 +1,7 @@
 export interface Settings {
     event_name: string;
     round_count: number;
+    bracket_stage_count: number;
     gamemodes: Gamemode[];
     roles: Role[];
     characters: Character[];
@@ -34,7 +35,7 @@ export interface Asset {
 
 export interface Division {
     teams: Team[];
-    bracket: Matchup[][];
+    bracket: (Matchup | null)[][];
 }
 
 export interface Matchup {
@@ -42,7 +43,7 @@ export interface Matchup {
     team2: number | null;
     team1_score: number;
     team2_score: number;
-    winner: number | null;
+    finished: boolean;
 }
 
 export interface Match {

@@ -8,7 +8,7 @@
     import { correctIndex, openDialog, saveDialog } from "$lib/util";
     import type { FilledModalFields } from "$lib/ModalForm.svelte";
     import { newFileField, newTextField } from "$lib/ModalForm.svelte";
-    import { correctRoundsToCount, getCurrentMatch, loadFromFilename, saveToFilename, startWebserver, stopWebserver } from "$lib/api";
+    import { correctRoundsToCount, correctBracketToCount, getCurrentMatch, loadFromFilename, saveToFilename, startWebserver, stopWebserver } from "$lib/api";
     import { tick } from "svelte";
     import * as api from "$lib/api";
 
@@ -22,6 +22,7 @@
     let selectedGamemodeIndex: number | undefined;
 
     let roundCount: number = settings.round_count;
+    let bracketStageCount: number = settings.bracket_stage_count;
     let isWebserverRunning = false;
 
     $: {
@@ -30,6 +31,17 @@
             correctRoundsToCount().then(() => {
                 getCurrentMatch().then((match) => {
                     currentMatch = match;
+                });
+            });
+        });
+    }
+
+    $: {
+        settings.bracket_stage_count = bracketStageCount;
+        tick().then(() => {
+            correctBracketToCount().then(() => {
+                api.getDivision().then((div) => {
+                    division = div;
                 });
             });
         });
@@ -132,6 +144,11 @@
         <span>
             Round Count
             <input type="number" bind:value={roundCount}>
+        </span>
+        <br><br>
+        <span>
+            Bracket Stage Count
+            <input type="number" bind:value={bracketStageCount}>
         </span>
     </Section>
 

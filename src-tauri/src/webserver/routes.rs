@@ -159,7 +159,6 @@ fn populate_context(context: &mut tera::Context, data: &SaveData) {
     context.insert("team_count", &data.team_names().len());
     context.insert("bracket", &data.division.bracket);
     context.insert("bracket_stage_count", &data.bracket_stage_count());
-    context.insert("bracket_visibilities", &data.bracket_visibilities());
     context.insert("rounds", &data.current_match.rounds);
     context.insert("event_name", &data.settings.event_name);
     context.insert("team1", &data.current_match.team1.map(|i| &data.division.teams[i]));

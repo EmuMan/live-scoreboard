@@ -38,24 +38,12 @@ impl SaveData {
     pub fn bracket_stage_count(&self) -> usize {
         let mut stage_count: usize = 3;
         for stage in &self.division.bracket {
-            if stage.iter().any(|matchup| matchup.is_filled()) {
+            if stage.iter().any(|matchup| matchup.is_some()) {
                 break;
             }
             stage_count -= 1;
         }
         stage_count
-    }
-
-    pub fn bracket_visibilities(&self) -> Vec<Vec<bool>> {
-        let mut visibilities = Vec::new();
-        for stage in &self.division.bracket {
-            let mut stage_visibilities = Vec::new();
-            for matchup in stage {
-                stage_visibilities.push(matchup.is_filled());
-            }
-            visibilities.push(stage_visibilities);
-        }
-        visibilities
     }
 
     pub fn correct_rounds_to_count(&mut self) {
@@ -66,12 +54,23 @@ impl SaveData {
             self.current_match.rounds.push(Round::default());
         }
     }
+
+    pub fn correct_bracket_to_count(&mut self) {
+        while self.settings.bracket_stage_count < self.division.bracket.len() {
+            self.division.bracket.remove(0);
+        }
+        while self.settings.bracket_stage_count > self.division.bracket.len() {
+            self.division.bracket.insert(0, 
+                vec![None; 2_usize.pow(self.division.bracket.len() as u32)]);
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Settings {
     pub event_name: String,
     pub round_count: usize,
+    pub bracket_stage_count: usize,
     pub gamemodes: Vec<Gamemode>,
     pub roles: Vec<Role>,
     pub characters: Vec<Character>,
@@ -81,6 +80,7 @@ impl Settings {
     pub fn new(
         event_name: &str,
         round_count: usize,
+        bracket_stage_count: usize,
         gamemodes: Vec<Gamemode>,
         roles: Vec<Role>,
         characters: Vec<Character>,
@@ -88,6 +88,7 @@ impl Settings {
         Self {
             event_name: event_name.to_string(),
             round_count,
+            bracket_stage_count,
             gamemodes,
             roles,
             characters,
@@ -97,7 +98,7 @@ impl Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        Self::new("New Event", 5, Vec::new(), Vec::new(), Vec::new())
+        Self::new("New Event", 5, 3, Vec::new(), Vec::new(), Vec::new())
     }
 }
 
@@ -205,20 +206,20 @@ impl Asset {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Division {
     pub teams: Vec<Team>,
-    pub bracket: Vec<Vec<Matchup>>,
+    pub bracket: Vec<Vec<Option<Matchup>>>,
 }
 
 impl Division {
     pub fn new(
         teams: Vec<Team>,
-        bracket: Option<Vec<Vec<Matchup>>>
+        bracket: Option<Vec<Vec<Option<Matchup>>>>
     ) -> Self {
         let bracket = match bracket {
             Some(bracket) => bracket,
             None => vec![
-                vec![Matchup::default(); 4],
-                vec![Matchup::default(); 2],
-                vec![Matchup::default()],
+                vec![None; 4],
+                vec![None; 2],
+                vec![None],
             ],
         };
         Self {
@@ -240,7 +241,7 @@ pub struct Matchup {
     pub team2: Option<usize>,
     pub team1_score: usize,
     pub team2_score: usize,
-    pub winner: Option<usize>,
+    pub finished: bool,
 }
 
 impl Matchup {
@@ -249,14 +250,14 @@ impl Matchup {
         team2: Option<usize>,
         team1_score: usize,
         team2_score: usize,
-        winner: Option<usize>
+        finished: bool,
     ) -> Self {
         Self {
             team1,
             team2,
             team1_score,
             team2_score,
-            winner,
+            finished,
         }
     }
 
@@ -267,7 +268,7 @@ impl Matchup {
 
 impl Default for Matchup {
     fn default() -> Self {
-        Self::new(None, None, 0, 0, None)
+        Self::new(None, None, 0, 0, false)
     }
 }
 

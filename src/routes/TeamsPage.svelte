@@ -60,6 +60,7 @@
                 }
                 division.bracket.forEach((round) => {
                     round.forEach((matchup) => {
+                        if (matchup === null) return;
                         if (matchup.team1 !== null) {
                             matchup.team1 = correctIndex(matchup.team1, from, to);
                         }

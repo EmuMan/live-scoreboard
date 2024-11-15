@@ -27,7 +27,7 @@
             <Section>
                 <div class="team">
                     <p>Team 1</p>
-                    <select bind:value={currentMatch.team1}>
+                    <select size="1" bind:value={currentMatch.team1}>
                         {#each division.teams as team, i}
                             <option value={i}>{team.name}</option>
                         {/each}
@@ -42,7 +42,7 @@
             <Section>
                 <div class="team">
                     <p>Team 2</p>
-                    <select bind:value={currentMatch.team2}>
+                    <select size="1" bind:value={currentMatch.team2}>
                         {#each division.teams as team, i}
                             <option value={i}>{team.name}</option>
                         {/each}
