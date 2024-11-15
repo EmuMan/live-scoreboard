@@ -120,8 +120,11 @@
                 const newItem = fromFilledFields(values, isEditing ? selectedItem : undefined);
                 if (isEditing && selectedIndex !== undefined) {
                     items = items.map((v, i) => i === selectedIndex ? newItem : v)
+                    selectedItem = newItem;
                 } else {
                     items = items.concat([newItem]);
+                    selectedIndex = items.length - 1;
+                    selectedItem = newItem;
                 }
                 onUpdate(items);
             }

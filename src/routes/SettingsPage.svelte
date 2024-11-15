@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { invoke } from "@tauri-apps/api/core";
+    import { convertFileSrc, invoke } from "@tauri-apps/api/core";
     import { open, save } from "@tauri-apps/plugin-dialog";
     import type { Settings, Gamemode, Match, Map, Division, Role, Character } from '$lib/models';
     import EditableList from "$lib/EditableList.svelte";
@@ -9,6 +9,8 @@
     import type { FilledModalFields } from "$lib/ModalForm.svelte";
     import { newFileField, newTextField } from "$lib/ModalForm.svelte";
     import { correctRoundsToCount, getCurrentMatch, loadFromFilename, saveToFilename, startWebserver, stopWebserver } from "$lib/api";
+    import { tick } from "svelte";
+    import * as api from "$lib/api";
 
     export let loadedConfig: string | null;
     export let settings: Settings;
@@ -24,9 +26,11 @@
 
     $: {
         settings.round_count = roundCount;
-        correctRoundsToCount().then(() => {
-            getCurrentMatch().then((match) => {
-                currentMatch = match;
+        tick().then(() => {
+            correctRoundsToCount().then(() => {
+                getCurrentMatch().then((match) => {
+                    currentMatch = match;
+                });
             });
         });
     }
@@ -228,7 +232,17 @@
         <p>Characters</p>
         <EditableList
             items={settings.characters}
-            itemTemplate={async (character) => character.name}
+            itemTemplate={async (character) => {
+                if (character.image === null) {
+                    return character.name;
+                }
+                const absolutePath = await api.fromRelativePath(character.image);
+                if (absolutePath === null) {
+                    return `${character.name} <span style="color: red;">Image not found</span>`;
+                }
+                const path = convertFileSrc(absolutePath);
+                return `${character.name} <img src=${path} alt=${character.name} style="max-width: 1rem; max-height: 1rem; padding-left: 1rem;" />`;
+            }}
             onUpdate={(items, from, to) => {
                 settings.characters = items;
                 if (from === undefined) return;

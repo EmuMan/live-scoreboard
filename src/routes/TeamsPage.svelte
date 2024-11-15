@@ -93,6 +93,7 @@
             onUpdate={(items) => {
                 if (selectedTeam) {
                     selectedTeam.players = items;
+                    division.teams = division.teams;
                 }
             }}
             fields={[
