@@ -29,12 +29,12 @@ export async function setDivision(division: models.Division) {
     await invoke("set_division", { division });
 }
 
-export async function getAssets(): Promise<models.Asset[]> {
-    return await invoke("get_assets");
+export async function getResources(): Promise<models.Resources> {
+    return await invoke("get_resources");
 }
 
-export async function setAssets(assets: models.Asset[]) {
-    await invoke("set_assets", { assets });
+export async function setResources(resources: models.Resources) {
+    await invoke("set_resources", { resources });
 }
 
 export async function getCurrentMatch(): Promise<models.Match> {

@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 use tokio::{self, sync::oneshot::{self, Sender}};
 use tauri::{State, Builder, Manager, async_runtime::JoinHandle};
 
-use models::{SaveData, Settings, Division, Asset, Match};
+use models::{SaveData, Settings, Division, Resources, Match};
 
 #[derive(Debug)]
 pub struct AppState {
@@ -129,15 +129,15 @@ fn set_division(shared_state: State<'_, SharedState>, division: Division) {
 }
 
 #[tauri::command]
-fn get_assets(shared_state: State<'_, SharedState>) -> Vec<Asset> {
+fn get_resources(shared_state: State<'_, SharedState>) -> Resources {
     let state = shared_state.lock().unwrap();
-    state.data.assets.clone()
+    state.data.resources.clone()
 }
 
 #[tauri::command]
-fn set_assets(shared_state: State<'_, SharedState>, assets: Vec<Asset>) {
+fn set_resources(shared_state: State<'_, SharedState>, resources: Resources) {
     let mut state = shared_state.lock().unwrap();
-    state.data.assets = assets;
+    state.data.resources = resources;
 }
 
 #[tauri::command]
@@ -209,8 +209,8 @@ pub fn run() {
             set_settings,
             get_division,
             set_division,
-            get_assets,
-            set_assets,
+            get_resources,
+            set_resources,
             get_current_match,
             set_current_match,
             load_from_filename,

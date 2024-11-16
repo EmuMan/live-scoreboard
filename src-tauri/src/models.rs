@@ -4,16 +4,16 @@ use serde::{Deserialize, Serialize};
 pub struct SaveData {
     pub settings: Settings,
     pub division: Division,
-    pub assets: Vec<Asset>,
+    pub resources: Resources,
     pub current_match: Match,
 }
 
 impl SaveData {
-    pub fn new(settings: Settings, division: Division, assets: Vec<Asset>, current_match: Match) -> Self {
+    pub fn new(settings: Settings, division: Division, resources: Resources, current_match: Match) -> Self {
         Self {
             settings,
             division,
-            assets,
+            resources,
             current_match,
         }
     }
@@ -22,7 +22,7 @@ impl SaveData {
         Self {
             settings: Settings::default(),
             division: Division::default(),
-            assets: Vec::new(),
+            resources: Resources::default(),
             current_match: Match::default(),
         }
     }
@@ -31,19 +31,12 @@ impl SaveData {
         self.division.teams.iter().map(|team| team.name.clone()).collect()
     }
 
-    pub fn assets_hashmap(&self) -> std::collections::HashMap<String, String> {
-        self.assets.iter().map(|asset| (asset.name.clone(), asset.path.clone())).collect()
+    pub fn images_hashmap(&self) -> std::collections::HashMap<String, String> {
+        self.resources.images.iter().map(|asset| (asset.name.clone(), asset.value.clone())).collect()
     }
 
-    pub fn bracket_stage_count(&self) -> usize {
-        let mut stage_count: usize = 3;
-        for stage in &self.division.bracket {
-            if stage.iter().any(|matchup| matchup.is_some()) {
-                break;
-            }
-            stage_count -= 1;
-        }
-        stage_count
+    pub fn strings_hashmap(&self) -> std::collections::HashMap<String, String> {
+        self.resources.strings.iter().map(|asset| (asset.name.clone(), asset.value.clone())).collect()
     }
 
     pub fn correct_rounds_to_count(&mut self) {
@@ -189,16 +182,37 @@ impl Default for Character {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub struct Asset {
-    pub name: String,
-    pub path: String,
+pub struct Resources {
+    pub images: Vec<ResourcePair>,
+    pub strings: Vec<ResourcePair>,
 }
 
-impl Asset {
-    pub fn new(name: &str, path: &str) -> Self {
+impl Resources {
+    pub fn new(images: Vec<ResourcePair>, strings: Vec<ResourcePair>) -> Self {
+        Self {
+            images,
+            strings,
+        }
+    }
+}
+
+impl Default for Resources {
+    fn default() -> Self {
+        Self::new(Vec::new(), Vec::new())
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct ResourcePair {
+    pub name: String,
+    pub value: String,
+}
+
+impl ResourcePair {
+    pub fn new(name: &str, value: &str) -> Self {
         Self {
             name: name.to_string(),
-            path: path.to_string(),
+            value: value.to_string(),
         }
     }
 }
@@ -241,7 +255,7 @@ pub struct Matchup {
     pub team2: Option<usize>,
     pub team1_score: usize,
     pub team2_score: usize,
-    pub finished: bool,
+    pub completed: bool,
 }
 
 impl Matchup {
@@ -250,14 +264,14 @@ impl Matchup {
         team2: Option<usize>,
         team1_score: usize,
         team2_score: usize,
-        finished: bool,
+        completed: bool,
     ) -> Self {
         Self {
             team1,
             team2,
             team1_score,
             team2_score,
-            finished,
+            completed,
         }
     }
 

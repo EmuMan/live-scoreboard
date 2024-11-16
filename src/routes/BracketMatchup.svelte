@@ -12,14 +12,14 @@
             team2: null,
             team1_score: 0,
             team2_score: 0,
-            finished: false,
+            completed: false,
         };
     }
 </script>
 
 <Container>
-    {#if matchup}
-        <div class="matchup">
+    <div class="matchup">
+        {#if matchup}
             <Section>
                 <span>
                     <select size="1" bind:value={matchup.team1}>
@@ -41,8 +41,8 @@
                 </span>
                 <span>
                     <div>
-                        <label for="finished">Finished?</label>
-                        <input type="checkbox" id="finished" bind:checked={matchup.finished} />
+                        <label for="completed">Completed?</label>
+                        <input type="checkbox" id="completed" bind:checked={matchup.completed} />
                     </div>
                     <div class="h-space"></div>
                     <button on:click={() => matchup = null}>
@@ -50,12 +50,12 @@
                     </button>
                 </span>
             </Section>
-        </div>
-    {:else}
-        <button on:click={initializeMatchup}>
-            <img src="icons/icons8-plus.svg" alt="Add" class="add-icon" />
-        </button>
-    {/if}
+        {:else}
+            <button on:click={initializeMatchup}>
+                <img src="icons/icons8-plus.svg" alt="Add" class="add-icon" />
+            </button>
+        {/if}
+    </div>
 </Container>
 
 <style>

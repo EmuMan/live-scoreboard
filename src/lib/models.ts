@@ -28,9 +28,14 @@ export interface Character {
     image: string | null;
 }
 
-export interface Asset {
+export interface Resources {
+    images: ResourcePair[];
+    strings: ResourcePair[];
+}
+
+export interface ResourcePair {
     name: string;
-    path: string;
+    value: string;
 }
 
 export interface Division {
@@ -43,7 +48,7 @@ export interface Matchup {
     team2: number | null;
     team1_score: number;
     team2_score: number;
-    finished: boolean;
+    completed: boolean;
 }
 
 export interface Match {

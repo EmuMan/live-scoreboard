@@ -151,14 +151,15 @@ pub async fn serve_asset(
 }
 
 fn populate_context(context: &mut tera::Context, data: &SaveData) {
-    context.insert("assets", &data.assets_hashmap());
+    context.insert("images", &data.images_hashmap());
+    context.insert("strings", &data.strings_hashmap());
     context.insert("gamemodes", &data.settings.gamemodes);
     context.insert("roles", &data.settings.roles);
     context.insert("characters", &data.settings.characters);
     context.insert("teams", &data.division.teams);
     context.insert("team_count", &data.team_names().len());
     context.insert("bracket", &data.division.bracket);
-    context.insert("bracket_stage_count", &data.bracket_stage_count());
+    context.insert("bracket_stage_count", &data.settings.bracket_stage_count);
     context.insert("rounds", &data.current_match.rounds);
     context.insert("event_name", &data.settings.event_name);
     context.insert("team1", &data.current_match.team1.map(|i| &data.division.teams[i]));
@@ -166,6 +167,16 @@ fn populate_context(context: &mut tera::Context, data: &SaveData) {
     context.insert("team1_score", &data.current_match.team1_score());
     context.insert("team2_score", &data.current_match.team2_score());
     context.insert("swap_scoreboard", &data.current_match.swap_scoreboard);
+
+    for image in &data.resources.images {
+        let name = format!("image_{}", image.name);
+        context.insert(&name, &image.value);
+    }
+
+    for string in &data.resources.strings {
+        let name = format!("string_{}", string.name);
+        context.insert(&name, &string.value);
+    }
 }
 
 fn get_content_type(path: &str) -> &'static str {

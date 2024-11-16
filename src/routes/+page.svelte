@@ -1,18 +1,18 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Settings, Asset, Division, Match } from '$lib/models';
+  import type { Settings, Resources, Division, Match } from '$lib/models';
   import SideNav from "./SideNav.svelte";
   import TeamsPage from "./TeamsPage.svelte";
   import CurrentMatchPage from "./CurrentMatchPage.svelte";
   import BracketPage from "./BracketPage.svelte";
-  import AssetsPage from "./AssetsPage.svelte";
+  import ResourcesPage from "./ResourcesPage.svelte";
   import SettingsPage from "./SettingsPage.svelte";
   import * as api from "$lib/api";
   
   let loadedConfig: string | null;
   let settings: Settings;
   let division: Division;
-  let assets: Asset[] = [];
+  let resources: Resources;
   let currentMatch: Match;
 
   let sideNav: SideNav;
@@ -23,7 +23,7 @@
     loadedConfig = await api.getLoadedConfig();
     settings = await api.getSettings();
     division = await api.getDivision();
-    assets = await api.getAssets();
+    resources = await api.getResources();
     await api.correctRoundsToCount();
     currentMatch = await api.getCurrentMatch();
   }
@@ -32,7 +32,7 @@
 
   $: settings && api.setSettings(settings);
   $: division && api.setDivision(division);
-  $: assets && api.setAssets(assets);
+  $: resources && api.setResources(resources);
   $: currentMatch && api.setCurrentMatch(currentMatch);
 </script>
 
@@ -63,7 +63,7 @@
     <BracketPage bind:division />
   {/if}
   {#if visibilities[3]}
-    <AssetsPage bind:assets />
+    <ResourcesPage bind:resources />
   {/if}
   {#if visibilities[4]}
     <SettingsPage
