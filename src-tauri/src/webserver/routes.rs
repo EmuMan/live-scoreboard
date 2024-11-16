@@ -16,6 +16,7 @@ pub fn create_router(webserver_state: Arc<WebserverState>) -> Router {
         .route("/scoreboard", get(render_scoreboard))
         .route("/rounds", get(render_rounds))
         .route("/waiting", get(render_waiting))
+        .route("/casters", get(render_casters))
         .layer(Extension(webserver_state))
 }
 
@@ -110,6 +111,23 @@ pub async fn render_waiting(
     populate_context(&mut context, &state.data);
 
     match webserver_state.tera.render("waiting.html", &context) {
+        Ok(rendered) => Ok(Html(rendered)),
+        Err(e) => {
+            eprintln!("Failed to render template: {:?}", e.source());
+            Err(AppError::TemplateError)
+        }
+    }
+}
+
+pub async fn render_casters(
+    Extension(webserver_state): Extension<Arc<WebserverState>>,
+) -> Result<Html<String>, AppError> {
+    let mut context = Context::new();
+    let state = webserver_state.shared_state.lock().unwrap();
+    
+    populate_context(&mut context, &state.data);
+
+    match webserver_state.tera.render("casters.html", &context) {
         Ok(rendered) => Ok(Html(rendered)),
         Err(e) => {
             eprintln!("Failed to render template: {:?}", e.source());
